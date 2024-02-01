@@ -1,0 +1,17 @@
+:host {
+  .header {
+    background: #f9fafc;
+    height: 50px;
+    width: 100%;
+    position: fixed;
+    top: 0;
+    z-index: 100;
+    display: flex;
+
+    .title {
+      display: flex;
+      align-items: center;
+      margin: 0px 18px;
+    }
+  }
+}
