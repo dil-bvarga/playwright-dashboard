@@ -1,5 +1,6 @@
-import express, { Express, Request, Response } from "express";
+import express, { Express } from "express";
 import cors from "cors";
+import { testResultsRouter } from "./routes/test-results/testResults.router";
 
 export const app: Express = express();
 
@@ -8,6 +9,4 @@ app.use(cors({
 }));
 app.use(express.json());
 
-app.get("/", (req: Request, res: Response) => {
-    res.status(200).json({});
-});
+app.use('/test-results', testResultsRouter);
