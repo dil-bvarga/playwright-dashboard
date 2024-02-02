@@ -3,13 +3,37 @@
   display: block;
 }
 
+.card {
+  padding: 25px;
+  background-color: #ffff;
+  border-radius: 12px;
+  box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
+}
+
+.flaky-dashboard-container {
+  margin-bottom: 28px;
+  max-width: 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: center;
+
+  .sub-title {
+    font-weight: 400;
+  }
+
+  .flaky-test-count {
+    font-size: 36px;
+  }
+}
+
 .spinner {
   margin-bottom: 28px;
 }
 
 .title-container {
   display: flex;
-  align-items: baseline;
+  align-items: flex-start;
 
   .sub-title {
     margin-bottom: 21px;

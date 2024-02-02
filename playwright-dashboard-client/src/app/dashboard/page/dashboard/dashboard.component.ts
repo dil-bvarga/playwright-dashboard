@@ -28,6 +28,7 @@ export const DEFAULT_FILTER_OPTION = '';
 export class DashboardComponent implements OnInit, OnDestroy {
   protected allAggregatedTestResults$: Observable<AggregatedSuiteResult[]>;
   protected filteredTestResults$: BehaviorSubject<AggregatedSuiteResult[]> = new BehaviorSubject([]);
+  protected flakyTestsCount$: BehaviorSubject<number> = new BehaviorSubject(0);
   protected queryForm: FormGroup;
   protected isLoading$: BehaviorSubject<boolean> = new BehaviorSubject(false);
   private _destroyed$ = new Subject<void>();
@@ -89,12 +90,33 @@ export class DashboardComponent implements OnInit, OnDestroy {
       takeUntil(this._destroyed$)
     );
 
-    // Apply the filter whenever allTestResults$ or the filter value changes.
-    combineLatest([this.allAggregatedTestResults$, this.queryForm.get('filter').valueChanges.pipe(startWith(this.queryForm.get('filter').value))])
-      .pipe(map(([results, filter]) => this.filterTestResults(results, filter)), takeUntil(this._destroyed$))
-      .subscribe(filteredResults => {
-        this.filteredTestResults$.next(filteredResults);
+    // Combine the test results with the filter form control value changes
+    combineLatest([
+      this.allAggregatedTestResults$,
+      this.queryForm.get('filter').valueChanges.pipe(startWith(this.queryForm.get('filter').value))
+    ]).pipe(
+      map(([results, filter]) => {
+        // Calculate the flaky tests count
+        this.flakyTestsCount$.next(this.calculateFlakyTestsCount(results));
+
+        // Apply the filter to the results
+        return this.filterTestResults(results, filter);
+      }),
+      takeUntil(this._destroyed$)
+    ).subscribe(filteredResults => {
+      this.filteredTestResults$.next(filteredResults);
+    });
+  }
+
+  private calculateFlakyTestsCount(testResults: AggregatedSuiteResult[]): number {
+    let count = 0;
+    testResults.forEach(suiteResult => {
+      suiteResult.specs.forEach(spec => {
+        const flaky = spec.runs.some(run => run.tests.some(test => test.status === 'flaky'));
+        if (flaky) count++;
       });
+    });
+    return count;
   }
 
   private filterTestResults(testResults: AggregatedSuiteResult[], filter: string): AggregatedSuiteResult[] {
