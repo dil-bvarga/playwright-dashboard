@@ -3,6 +3,10 @@
   display: block;
 }
 
+.spinner {
+  margin-bottom: 28px;
+}
+
 .title-container {
   display: flex;
   align-items: baseline;
@@ -11,8 +15,12 @@
     margin-bottom: 21px;
   }
 
-  .last-run-count-select {
+  .filter-select {
     margin-inline-start: auto;
+  }
+
+  .last-run-count-select {
+    margin-inline-start: 8px;
   }
 }
 
@@ -51,7 +59,8 @@
     display: flex;
     gap: 8px;
     margin-bottom: 12px;
-    margin-inline-start: 36px;
+    padding-inline-start: 36px;
+    border-bottom: 1px solid #8080802e;
 
     .test-title-container {
       display: flex;

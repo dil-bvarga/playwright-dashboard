@@ -7,6 +7,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { DashboardComponent } from './page/dashboard/dashboard.component';
 import { LatestSuiteRunTimePipe } from './pipes/latest-suite-run-time.pipe';
 import { AllExpectedTestRunsPipe } from './pipes/all-expected-test-runs.pipe';
@@ -32,7 +33,8 @@ import { HasFlakyTestRunsPipe } from './pipes/has-flaky-test-runs.pipe';
     MatSelectModule,
     MatInputModule,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    MatProgressSpinnerModule
   ],
   exports: [DashboardComponent],
 })
