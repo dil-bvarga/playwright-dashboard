@@ -1,0 +1,49 @@
+:host {
+  padding: 28px;
+  display: block;
+}
+
+.sub-title {
+  margin-bottom: 21px;
+}
+
+.expansion-panel {
+  .expansion-header {
+    background-color: #f6f8fa;
+    border-bottom: 1px solid #8080802e;
+    height: 100%;
+  }
+
+  .panel-title {
+    display: flex;
+    gap: 8px;
+    padding-top: 12px;
+    padding-bottom: 12px;
+
+    .folder-icon {
+      color: #99a4b8;
+    }
+
+    .suite-title {
+      font-size: 16px;
+    }
+
+    .latest-suite-run-time {
+      margin-top: 4px;
+      font-size: 12px;
+    }
+  }
+
+  ::ng-deep.mat-expansion-panel-body {
+    padding: 16px 24px 16px;
+  }
+
+  .test-result-container {
+    display: flex;
+
+    .test-title {
+      margin-inline-start: 32px;
+      margin-bottom: 12px;
+    }
+  }
+}

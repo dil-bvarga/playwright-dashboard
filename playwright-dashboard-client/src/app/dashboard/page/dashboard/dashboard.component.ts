@@ -9,7 +9,7 @@ import { DashboardTestResultsRepository } from '../../repositories/dashboard-tes
   styleUrls: ['./dashboard.component.scss']
 })
 export class DashboardComponent implements OnInit {
-  protected allAggregatedTestResults$!: Observable<AggregatedSuiteResult[]>;
+  protected allAggregatedTestResults$: Observable<AggregatedSuiteResult[]>;
 
   constructor(private readonly _dashboardTestResultsRepository: DashboardTestResultsRepository) { }
 

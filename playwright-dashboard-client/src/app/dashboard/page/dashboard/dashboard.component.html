@@ -1,1 +1,30 @@
-<p>dashboard works!</p>
+<h3 class="sub-title">Latest test results</h3>
+
+<mat-accordion multi>
+  <mat-expansion-panel
+    class="expansion-panel"
+    *ngFor="let suite of allAggregatedTestResults$ | async"
+  >
+    <mat-expansion-panel-header class="expansion-header">
+      <mat-panel-title>
+        <div class="panel-title">
+          <mat-icon
+            class="folder-icon"
+            aria-hidden="false"
+            fontIcon="folder"
+          ></mat-icon>
+          <div>
+            <p class="suite-title">{{ suite.suiteTitle }}</p>
+            <p class="latest-suite-run-time">
+              {{ suite | latestSuiteRunTime }} minutes ago
+            </p>
+          </div>
+        </div>
+      </mat-panel-title>
+    </mat-expansion-panel-header>
+
+    <div class="test-result-container" *ngFor="let test of suite.specs">
+      <p class="test-title">{{ test.title }}</p>
+    </div>
+  </mat-expansion-panel>
+</mat-accordion>

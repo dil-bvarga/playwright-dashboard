@@ -1,6 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { environment } from '../environments/environment';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 
 @Component({
   selector: 'app-root',
@@ -8,16 +6,6 @@ import { environment } from '../environments/environment';
   styleUrls: ['./app.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AppComponent implements OnInit {
+export class AppComponent {
   title = 'playwright-dashboard-client';
-
-  constructor(private _http: HttpClient) { }
-
-  public ngOnInit(): void {
-    this._http
-      .get(`${environment.apiUrl}/test-results/aggregated`)
-      .subscribe((data) => {
-        console.log(data);
-      });
-  }
 }
