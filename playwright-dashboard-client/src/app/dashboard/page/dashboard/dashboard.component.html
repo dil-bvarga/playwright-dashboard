@@ -1,6 +1,22 @@
-<div class="card flaky-dashboard-container">
-  <span class="flaky-test-count">{{ flakyTestsCount$ | async }}</span>
-  <h3 class="sub-title">Flaky test cases</h3>
+<div class="statistics-dashboard-container">
+  <div class="card statistics-card-container">
+    <span class="statistics-test-count">{{ flakyTestsCount$ | async }}</span>
+    <h3 class="sub-title">Flaky test cases</h3>
+  </div>
+
+  <div class="card statistics-card-container">
+    <span class="statistics-test-count">{{
+      allPassedTestsCount$ | async
+    }}</span>
+    <h3 class="sub-title">All passed test cases</h3>
+  </div>
+
+  <div class="card statistics-card-container">
+    <span class="statistics-test-count">{{
+      allFailedTestsCount$ | async
+    }}</span>
+    <h3 class="sub-title">All failed test cases</h3>
+  </div>
 </div>
 
 <div class="card">

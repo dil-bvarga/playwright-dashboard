@@ -10,20 +10,27 @@
   box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
 }
 
-.flaky-dashboard-container {
-  margin-bottom: 28px;
-  max-width: 300px;
+.statistics-dashboard-container {
   display: flex;
-  flex-direction: column;
-  gap: 8px;
-  text-align: center;
+  gap: 18px;
+  justify-content: space-around;
 
-  .sub-title {
-    font-weight: 400;
-  }
+  .statistics-card-container {
+    margin-bottom: 28px;
+    max-width: 300px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    text-align: center;
+    width: 100%;
 
-  .flaky-test-count {
-    font-size: 36px;
+    .sub-title {
+      font-weight: 400;
+    }
+
+    .statistics-test-count {
+      font-size: 36px;
+    }
   }
 }
 

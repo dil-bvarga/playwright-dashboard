@@ -27,8 +27,15 @@ export const DEFAULT_FILTER_OPTION = '';
 })
 export class DashboardComponent implements OnInit, OnDestroy {
   protected allAggregatedTestResults$: Observable<AggregatedSuiteResult[]>;
-  protected filteredTestResults$: BehaviorSubject<AggregatedSuiteResult[]> = new BehaviorSubject([]);
+  protected filteredTestResults$: BehaviorSubject<AggregatedSuiteResult[]> =
+    new BehaviorSubject([]);
   protected flakyTestsCount$: BehaviorSubject<number> = new BehaviorSubject(0);
+  protected allPassedTestsCount$: BehaviorSubject<number> = new BehaviorSubject(
+    0
+  );
+  protected allFailedTestsCount$: BehaviorSubject<number> = new BehaviorSubject(
+    0
+  );
   protected queryForm: FormGroup;
   protected isLoading$: BehaviorSubject<boolean> = new BehaviorSubject(false);
   private _destroyed$ = new Subject<void>();
@@ -81,50 +88,82 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   private setupFormValueChanges(): void {
-    this.allAggregatedTestResults$ = this.queryForm.get('lastRunCount').valueChanges.pipe(
-      startWith(this.queryForm.get('lastRunCount').value),
-      switchMap(lastRunCount => {
-        this.isLoading$.next(true);
-        return this._dashboardTestResultsRepository.getAllAggregatedTestResults(lastRunCount).pipe(finalize(() => this.isLoading$.next(false)));
-      }),
-      takeUntil(this._destroyed$)
-    );
+    this.allAggregatedTestResults$ = this.queryForm
+      .get('lastRunCount')
+      .valueChanges.pipe(
+        startWith(this.queryForm.get('lastRunCount').value),
+        switchMap((lastRunCount) => {
+          this.isLoading$.next(true);
+          return this._dashboardTestResultsRepository
+            .getAllAggregatedTestResults(lastRunCount)
+            .pipe(finalize(() => this.isLoading$.next(false)));
+        }),
+        takeUntil(this._destroyed$)
+      );
 
     // Combine the test results with the filter form control value changes
     combineLatest([
       this.allAggregatedTestResults$,
-      this.queryForm.get('filter').valueChanges.pipe(startWith(this.queryForm.get('filter').value))
-    ]).pipe(
-      map(([results, filter]) => {
-        // Calculate the flaky tests count
-        this.flakyTestsCount$.next(this.calculateFlakyTestsCount(results));
-
-        // Apply the filter to the results
-        return this.filterTestResults(results, filter);
-      }),
-      takeUntil(this._destroyed$)
-    ).subscribe(filteredResults => {
-      this.filteredTestResults$.next(filteredResults);
-    });
+      this.queryForm
+        .get('filter')
+        .valueChanges.pipe(startWith(this.queryForm.get('filter').value)),
+    ])
+      .pipe(
+        map(([results, filter]) => {
+          // Apply the filter to the results
+          return this.filterTestResults(results, filter);
+        }),
+        takeUntil(this._destroyed$)
+      )
+      .subscribe((filteredResults) => {
+        this.filteredTestResults$.next(filteredResults);
+        // Calculate statistics
+        this.calculateTestsCountStatistics(filteredResults);
+      });
   }
 
-  private calculateFlakyTestsCount(testResults: AggregatedSuiteResult[]): number {
-    let count = 0;
-    testResults.forEach(suiteResult => {
-      suiteResult.specs.forEach(spec => {
-        const flaky = spec.runs.some(run => run.tests.some(test => test.status === 'flaky'));
-        if (flaky) count++;
+  private calculateTestsCountStatistics(
+    testResults: AggregatedSuiteResult[]
+  ): void {
+    let flakyCount = 0;
+    let allPassedCount = 0;
+    let allFailedCount = 0;
+    testResults.forEach((suiteResult) => {
+      suiteResult.specs.forEach((spec) => {
+        const flaky = spec.runs.some((run) =>
+          run.tests.some((test) => test.status === 'flaky')
+        );
+        const allPassed = spec.runs.every((run) =>
+          run.tests.some((test) => test.status === 'expected')
+        );
+        const allFailed = spec.runs.every((run) =>
+          run.tests.some((test) => test.status === 'unexpected')
+        );
+        if (flaky) flakyCount++;
+        if (allPassed) allPassedCount++;
+        if (allFailed) allFailedCount++;
       });
     });
-    return count;
+    this.flakyTestsCount$.next(flakyCount);
+    this.allPassedTestsCount$.next(allPassedCount);
+    this.allFailedTestsCount$.next(allFailedCount);
   }
 
-  private filterTestResults(testResults: AggregatedSuiteResult[], filter: string): AggregatedSuiteResult[] {
+  private filterTestResults(
+    testResults: AggregatedSuiteResult[],
+    filter: string
+  ): AggregatedSuiteResult[] {
     if (filter === 'flaky') {
-      return testResults.map((suiteResult: AggregatedSuiteResult) => ({
-        ...suiteResult,
-        specs: suiteResult.specs.filter(spec => spec.runs.some(run => run.tests.some(test => test.status === 'flaky'))),
-      })).filter(suiteResult => suiteResult.specs.length > 0);
+      return testResults
+        .map((suiteResult: AggregatedSuiteResult) => ({
+          ...suiteResult,
+          specs: suiteResult.specs.filter((spec) =>
+            spec.runs.some((run) =>
+              run.tests.some((test) => test.status === 'flaky')
+            )
+          ),
+        }))
+        .filter((suiteResult) => suiteResult.specs.length > 0);
     }
     // Return the original results if no specific filter is applied
     return testResults;
