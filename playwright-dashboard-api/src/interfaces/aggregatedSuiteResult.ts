@@ -7,12 +7,12 @@ export interface AggregatedSuiteResult {
     suiteRuns?: JSONReport[]; // Storing entire reports for suite-level stats
 }
 
-interface AggregatedSpecResult extends Pick<JSONReportSpec, | 'title'> {
+interface AggregatedSpecResult extends Pick<JSONReportSpec, | 'title' | 'file' | 'line'> {
     runs: AggregatedSpecRun[];
 }
 
 interface AggregatedSpecRun extends Pick<JSONReportSpec, | 'ok'> {
-    specId: string; // Identifier for the test run
+    specId: string; // Identifier for the test
     suiteRunStartTime: string; // Start time of the test suite run
     tests: AggregatedTestResult[];
 }

@@ -108,7 +108,7 @@ export class PlaywrightTestResultLocalDirectoryService implements PlaywrightTest
                 suite.specs.forEach(spec => {
                     let aggregatedSpec = aggregatedSuite.specs.find(s => s.title === spec.title);
                     if (!aggregatedSpec) {
-                        aggregatedSpec = { title: spec.title, runs: [] };
+                        aggregatedSpec = { title: spec.title, runs: [], file: spec.file, line: spec.line };
                         aggregatedSuite.specs.push(aggregatedSpec);
                     }
 

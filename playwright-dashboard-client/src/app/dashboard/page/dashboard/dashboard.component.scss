@@ -40,10 +40,50 @@
 
   .test-result-container {
     display: flex;
+    margin-bottom: 12px;
 
-    .test-title {
-      margin-inline-start: 32px;
-      margin-bottom: 12px;
+    .test-title-container {
+      display: flex;
+      flex-direction: column;
+      margin-inline-start: 45px;
+      max-width: 350px;
+      width: 100%;
+
+      .test-title {
+        font-size: 14px;
+      }
+
+      .test-line {
+        font-size: 12px;
+        font-style: italic;
+      }
+    }
+
+    .test-runs-column-container {
+      display: flex;
+      gap: 4px;
+
+      .test-run-rectangle {
+        width: 8px;
+        height: 25px;
+        border-radius: 2px;
+
+        &.expected {
+          background-color: #10ce66;
+        }
+
+        &.skipped {
+          background-color: #99a4b8;
+        }
+
+        &.unexpected {
+          background-color: #fe4949;
+        }
+
+        &.flaky {
+          background-color: #ffcd3c;
+        }
+      }
     }
   }
 }

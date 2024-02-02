@@ -1,7 +1,7 @@
 :host {
   .header {
-    background: #f6f8fa;
-    height: 50px;
+    background: #2f3b4d;
+    height: 60px;
     width: 100%;
     position: fixed;
     top: 0;
@@ -12,6 +12,7 @@
       display: flex;
       align-items: center;
       margin: 0px 18px;
+      color: #ffffff;
     }
   }
 }

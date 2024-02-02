@@ -23,8 +23,37 @@
       </mat-panel-title>
     </mat-expansion-panel-header>
 
-    <div class="test-result-container" *ngFor="let test of suite.specs">
-      <p class="test-title">{{ test.title }}</p>
+    <div
+      class="test-result-container"
+      *ngFor="let test of suite.specs; trackBy: testTitle"
+    >
+      <div class="test-title-container">
+        <p class="test-title">{{ test.title }}</p>
+        <p class="test-line">{{ test.file }}:{{ test.line }}</p>
+      </div>
+
+      <div class="test-runs-column-container">
+        <div
+          *ngFor="
+            let testRun of test.runs | slice : 0 : 30;
+            trackBy: testRunSpecId
+          "
+        >
+          <div
+            class="test-run-rectangle"
+            [ngClass]="{
+              expected: testRun.tests | allExpectedTestRuns,
+              skipped: testRun.tests | hasSkippedTestRuns,
+              unexpected: testRun.tests | hasUnexpectedTestRuns,
+              flaky: testRun.tests | hasFlakyTestRuns
+            }"
+            #tooltip="matTooltip"
+            [matTooltip]="testRun.suiteRunStartTime | date : 'medium'"
+            [matTooltipPosition]="'above'"
+            matTooltipHideDelay="100"
+          ></div>
+        </div>
+      </div>
     </div>
   </mat-expansion-panel>
 </mat-accordion>
