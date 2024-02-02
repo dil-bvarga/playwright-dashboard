@@ -27,7 +27,7 @@ export const DEFAULT_FILTER_OPTION = '';
 })
 export class DashboardComponent implements OnInit, OnDestroy {
   protected allAggregatedTestResults$: Observable<AggregatedSuiteResult[]>;
-  protected filteredTestResults$: Observable<AggregatedSuiteResult[]>;
+  protected filteredTestResults$: BehaviorSubject<AggregatedSuiteResult[]> = new BehaviorSubject([]);
   protected queryForm: FormGroup;
   protected isLoading$: BehaviorSubject<boolean> = new BehaviorSubject(false);
   private _destroyed$ = new Subject<void>();
@@ -80,18 +80,21 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   private setupFormValueChanges(): void {
-    const lastRunCountChanges$ = this.queryForm.get('lastRunCount').valueChanges.pipe(startWith(this.queryForm.get('lastRunCount').value));
-    const filterChanges$ = this.queryForm.get('filter').valueChanges.pipe(startWith(this.queryForm.get('filter').value));
-
-    this.filteredTestResults$ = combineLatest([lastRunCountChanges$, filterChanges$]).pipe(
-      switchMap(([lastRunCount, filter]) => {
+    this.allAggregatedTestResults$ = this.queryForm.get('lastRunCount').valueChanges.pipe(
+      startWith(this.queryForm.get('lastRunCount').value),
+      switchMap(lastRunCount => {
         this.isLoading$.next(true);
-        return this._dashboardTestResultsRepository.getAllAggregatedTestResults(lastRunCount).pipe(
-          map(testResults => this.filterTestResults(testResults, filter)),
-          finalize(() => this.isLoading$.next(false))
-        );
-      })
+        return this._dashboardTestResultsRepository.getAllAggregatedTestResults(lastRunCount).pipe(finalize(() => this.isLoading$.next(false)));
+      }),
+      takeUntil(this._destroyed$)
     );
+
+    // Apply the filter whenever allTestResults$ or the filter value changes.
+    combineLatest([this.allAggregatedTestResults$, this.queryForm.get('filter').valueChanges.pipe(startWith(this.queryForm.get('filter').value))])
+      .pipe(map(([results, filter]) => this.filterTestResults(results, filter)), takeUntil(this._destroyed$))
+      .subscribe(filteredResults => {
+        this.filteredTestResults$.next(filteredResults);
+      });
   }
 
   private filterTestResults(testResults: AggregatedSuiteResult[], filter: string): AggregatedSuiteResult[] {
