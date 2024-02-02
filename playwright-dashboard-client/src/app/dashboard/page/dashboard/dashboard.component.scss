@@ -3,8 +3,17 @@
   display: block;
 }
 
-.sub-title {
-  margin-bottom: 21px;
+.title-container {
+  display: flex;
+  align-items: baseline;
+
+  .sub-title {
+    margin-bottom: 21px;
+  }
+
+  .last-run-count-select {
+    margin-inline-start: auto;
+  }
 }
 
 .expansion-panel {
@@ -40,12 +49,14 @@
 
   .test-result-container {
     display: flex;
+    gap: 8px;
     margin-bottom: 12px;
+    margin-inline-start: 36px;
 
     .test-title-container {
       display: flex;
       flex-direction: column;
-      margin-inline-start: 45px;
+
       max-width: 350px;
       width: 100%;
 
@@ -62,6 +73,7 @@
     .test-runs-column-container {
       display: flex;
       gap: 4px;
+      width: 100%;
 
       .test-run-rectangle {
         width: 8px;

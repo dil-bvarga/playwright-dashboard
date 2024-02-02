@@ -1,3 +1,5 @@
+import { JSONReport } from "../types/testReporter";
+
 export interface PlaywrightTestResultReader {
-    getTestResults(): Promise<any[]>;
+    getTestResults(testSuiteRunCount?: number): Promise<JSONReport[]>;
 }

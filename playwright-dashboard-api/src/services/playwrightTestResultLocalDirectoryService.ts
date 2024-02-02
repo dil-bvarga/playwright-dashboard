@@ -4,8 +4,6 @@ import fs from 'fs';
 import path from 'path';
 import { JSONReport } from '../types/testReporter';
 import { AggregatedSuiteResult } from '../interfaces/aggregatedSuiteResult';
-import { start } from 'repl';
-
 
 export class PlaywrightTestResultLocalDirectoryService implements PlaywrightTestResultReader, PlaywrightTestResultWriter {
     constructor(private readonly _sourceDirectory: string, private readonly _destinationDirectory: string) { }
@@ -67,7 +65,7 @@ export class PlaywrightTestResultLocalDirectoryService implements PlaywrightTest
     }
 
     // Implementation for reading data from the destination directory
-    public async getTestResults(): Promise<JSONReport[]> {
+    public async getTestResults(testSuiteRunCount?: number): Promise<JSONReport[]> {
         let results: JSONReport[] = [];
         const testFolders = fs.readdirSync(this._destinationDirectory, { withFileTypes: true })
             .filter(dirent => dirent.isDirectory())
@@ -81,15 +79,17 @@ export class PlaywrightTestResultLocalDirectoryService implements PlaywrightTest
             }
         }
 
-        return results.sort((a, b) => {
+        results.sort((a, b) => {
             const dateA = new Date(a.stats.startTime);
             const dateB = new Date(b.stats.startTime);
             return dateB.getTime() - dateA.getTime();
         });
+
+        return testSuiteRunCount ? results.slice(0, testSuiteRunCount) : results;
     }
 
-    public async getAggregatedTestResults(): Promise<AggregatedSuiteResult[]> {
-        const testResults: JSONReport[] = await this.getTestResults();
+    public async getAggregatedTestResults(testSuiteRunCount?: number): Promise<AggregatedSuiteResult[]> {
+        const testResults: JSONReport[] = await this.getTestResults(testSuiteRunCount);
         return this.aggregateTestResults(testResults);
     }
 

@@ -1,4 +1,14 @@
-<h3 class="sub-title">Latest test results</h3>
+<div class="title-container">
+  <h3 class="sub-title">Latest test suite run results</h3>
+  <mat-form-field class="last-run-count-select" [formGroup]="lastRunCountForm">
+    <mat-label>Last run count</mat-label>
+    <mat-select formControlName="lastRunCount" disableRipple>
+      <mat-option value="7">7</mat-option>
+      <mat-option value="15">15</mat-option>
+      <mat-option value="30">30</mat-option>
+    </mat-select>
+  </mat-form-field>
+</div>
 
 <mat-accordion multi>
   <mat-expansion-panel
@@ -10,7 +20,7 @@
         <div class="panel-title">
           <mat-icon
             class="folder-icon"
-            aria-hidden="false"
+            aria-hidden="true"
             fontIcon="folder"
           ></mat-icon>
           <div>
@@ -35,7 +45,7 @@
       <div class="test-runs-column-container">
         <div
           *ngFor="
-            let testRun of test.runs | slice : 0 : 30;
+            let testRun of test.runs | slice : 0 : 40;
             trackBy: testRunSpecId
           "
         >
