@@ -60,6 +60,7 @@
     gap: 8px;
     margin-bottom: 12px;
     padding-inline-start: 36px;
+    padding-bottom: 8px;
     border-bottom: 1px solid #8080802e;
 
     .test-title-container {
@@ -81,6 +82,7 @@
 
     .test-runs-column-container {
       display: flex;
+      flex-wrap: wrap;
       gap: 4px;
       width: 100%;
 

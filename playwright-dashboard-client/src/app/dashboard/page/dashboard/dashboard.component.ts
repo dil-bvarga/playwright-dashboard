@@ -28,7 +28,7 @@ export const DEFAULT_FILTER_OPTION = '';
 export class DashboardComponent implements OnInit, OnDestroy {
   protected allAggregatedTestResults$: Observable<AggregatedSuiteResult[]>;
   protected filteredTestResults$: Observable<AggregatedSuiteResult[]>;
-  protected lastRunCountForm: FormGroup;
+  protected queryForm: FormGroup;
   protected isLoading$: BehaviorSubject<boolean> = new BehaviorSubject(false);
   private _destroyed$ = new Subject<void>();
 
@@ -73,15 +73,15 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   private initializeForm(): void {
-    this.lastRunCountForm = this._fb.group({
+    this.queryForm = this._fb.group({
       lastRunCount: DEFAULT_SUITE_RUN_COUNT_OPTION,
       filter: DEFAULT_FILTER_OPTION,
     });
   }
 
   private setupFormValueChanges(): void {
-    const lastRunCountChanges$ = this.lastRunCountForm.get('lastRunCount').valueChanges.pipe(startWith(this.lastRunCountForm.get('lastRunCount').value));
-    const filterChanges$ = this.lastRunCountForm.get('filter').valueChanges.pipe(startWith(this.lastRunCountForm.get('filter').value));
+    const lastRunCountChanges$ = this.queryForm.get('lastRunCount').valueChanges.pipe(startWith(this.queryForm.get('lastRunCount').value));
+    const filterChanges$ = this.queryForm.get('filter').valueChanges.pipe(startWith(this.queryForm.get('filter').value));
 
     this.filteredTestResults$ = combineLatest([lastRunCountChanges$, filterChanges$]).pipe(
       switchMap(([lastRunCount, filter]) => {
