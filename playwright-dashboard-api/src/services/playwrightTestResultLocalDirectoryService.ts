@@ -1,18 +1,18 @@
-import { PlaywrightTestResultReader } from '../interfaces/playwrightTestResultReader';
-import { PlaywrightTestResultWriter } from '../interfaces/playwrightTestResultWriter';
 import fs from 'fs';
 import path from 'path';
+import { PlaywrightTestResultReader } from '../interfaces/playwrightTestResultReader';
+import { PlaywrightTestResultWriter } from '../interfaces/playwrightTestResultWriter';
 import { JSONReport } from '../types/testReporter';
 import { AggregatedSuiteResult } from '../interfaces/aggregatedSuiteResult';
+import { aggregateTestResults } from './testResultAggregator';
 
 export class PlaywrightTestResultLocalDirectoryService implements PlaywrightTestResultReader, PlaywrightTestResultWriter {
     constructor(private readonly _sourceDirectory: string, private readonly _destinationDirectory: string) { }
     // Implementation for copying data from the source directory to the destination directory
-    public async saveTestResults(testResults: JSONReport[]): Promise<any[]> {
+    public async saveTestResults(testResults: JSONReport[]): Promise<JSONReport[]> {
         const newSourceTestFolders = fs.readdirSync(this._sourceDirectory, { withFileTypes: true })
             .filter(dirent => dirent.isDirectory())
             .map(dirent => dirent.name);
-
 
         for (const folder of newSourceTestFolders) {
             const sourceFilePath = path.join(this._sourceDirectory, folder, 'results.json');
@@ -90,56 +90,6 @@ export class PlaywrightTestResultLocalDirectoryService implements PlaywrightTest
 
     public async getAggregatedTestResults(testSuiteRunCount?: number): Promise<AggregatedSuiteResult[]> {
         const testResults: JSONReport[] = await this.getTestResults(testSuiteRunCount);
-        return this.aggregateTestResults(testResults);
-    }
-
-    private aggregateTestResults(reports: JSONReport[]): AggregatedSuiteResult[] {
-        const aggregatedSuites: { [key: string]: AggregatedSuiteResult } = {};
-
-        reports.forEach(report => {
-            report.suites.forEach(suite => {
-                const suiteKey = `${suite.title}-${suite.file}`;
-                if (!aggregatedSuites[suiteKey]) {
-                    aggregatedSuites[suiteKey] = { suiteTitle: suite.title, suiteFile: suite.file, specs: [], suiteRuns: [] };
-                }
-
-                const aggregatedSuite = aggregatedSuites[suiteKey];
-
-                suite.specs.forEach(spec => {
-                    let aggregatedSpec = aggregatedSuite.specs.find(s => s.title === spec.title);
-                    if (!aggregatedSpec) {
-                        aggregatedSpec = { title: spec.title, runs: [], file: spec.file, line: spec.line };
-                        aggregatedSuite.specs.push(aggregatedSpec);
-                    }
-
-                    const aggregatedTestResults = spec.tests.map(test => {
-                        return {
-                            expectedStatus: test.expectedStatus,
-                            status: test.status,
-                            projectId: test.projectId,
-                            projectName: test.projectName,
-                            results: test.results.map(result => ({
-                                status: result.status,
-                                startTime: result.startTime,
-                                //error: result.error,
-                                duration: result.duration,
-                                retry: result.retry
-                            }))
-                        };
-                    });
-
-                    aggregatedSpec.runs.push({
-                        ok: spec.ok,
-                        tests: aggregatedTestResults,
-                        specId: spec.id, // or some other unique identifier from the report
-                        suiteRunStartTime: report.stats.startTime
-                    });
-                });
-
-                //aggregatedSuite.suiteRuns.push(report);
-            });
-        });
-
-        return Object.values(aggregatedSuites);
+        return aggregateTestResults(testResults);
     }
 }
