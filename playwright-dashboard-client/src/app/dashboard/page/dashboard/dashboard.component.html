@@ -1,9 +1,11 @@
 <div class="statistics-dashboard-container">
+  <!-- Number of Flaky test cases -->
   <div class="card statistics-card-container">
     <span class="statistics-test-count">{{ flakyTestsCount$ | async }}</span>
     <h3 class="sub-title flaky">Flaky test cases</h3>
   </div>
 
+  <!-- Number of All Passed test cases -->
   <div class="card statistics-card-container">
     <span class="statistics-test-count">{{
       allPassedTestsCount$ | async
@@ -11,6 +13,7 @@
     <h3 class="sub-title passed">All passed test cases</h3>
   </div>
 
+  <!-- Number of All Failed test cases -->
   <div class="card statistics-card-container">
     <span class="statistics-test-count">{{
       allFailedTestsCount$ | async
@@ -19,6 +22,7 @@
   </div>
 </div>
 
+<!-- Filter and query section -->
 <div class="card">
   <div class="title-container" [formGroup]="queryForm">
     <h3 class="sub-title">Latest test suite run results</h3>
@@ -28,13 +32,28 @@
       aria-hidden="true"
       fontIcon="filter_list"
     ></mat-icon>
+
+    <!-- Search input -->
+    <mat-form-field class="search-input">
+      <mat-label>Search</mat-label>
+      <input
+        formControlName="search"
+        matInput
+        placeholder="Type to search..."
+      />
+      <mat-icon matPrefix>search</mat-icon>
+    </mat-form-field>
+
+    <!-- Filter select -->
     <mat-form-field class="filter-select">
       <mat-label>Filter</mat-label>
       <mat-select formControlName="filter" disableRipple>
         <mat-option value="">None</mat-option>
-        <mat-option value="flaky">Show Flaky tests</mat-option>
+        <mat-option [value]="TestStatus.Flaky">Show Flaky tests</mat-option>
       </mat-select>
     </mat-form-field>
+
+    <!-- Last run count select -->
     <mat-form-field class="last-run-count-select">
       <mat-label>Last run count</mat-label>
       <mat-select formControlName="lastRunCount" disableRipple>
@@ -45,11 +64,23 @@
     </mat-form-field>
   </div>
 
+  <!-- Loading indicator -->
   <mat-spinner
     class="spinner"
     *ngIf="isLoading$.asObservable() | async"
   ></mat-spinner>
 
+  <!-- No data to display -->
+  <p
+    *ngIf="
+      !(isLoading$.asObservable() | async) &&
+      (filteredTestResults$ | async).length === 0
+    "
+  >
+    There's no data to display.
+  </p>
+
+  <!-- Display test result using mat accordion -->
   <mat-accordion
     *ngIf="!(isLoading$.asObservable() | async)"
     multi

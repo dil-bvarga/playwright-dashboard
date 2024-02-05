@@ -50,6 +50,11 @@
   margin-bottom: 28px;
 }
 
+::ng-deep.mat-mdc-progress-spinner circle,
+.mat-spinner circle {
+  stroke: #2f3b4d;
+}
+
 .title-container {
   display: flex;
   align-items: flex-start;
@@ -58,15 +63,13 @@
     margin-bottom: 21px;
   }
 
-  .filter-icon {
-    margin-inline-start: 8px;
-  }
-
-  .filter-select {
+  .search-input {
     margin-inline-start: auto;
   }
 
-  .last-run-count-select {
+  .last-run-count-select,
+  .filter-select,
+  .filter-icon {
     margin-inline-start: 8px;
   }
 }
