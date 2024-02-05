@@ -26,6 +26,18 @@
 
     .sub-title {
       font-weight: 400;
+
+      &.flaky {
+        color: #ee9b04;
+      }
+
+      &.passed {
+        color: #10ce66;
+      }
+
+      &.failed {
+        color: #fe4949;
+      }
     }
 
     .statistics-test-count {
@@ -44,6 +56,10 @@
 
   .sub-title {
     margin-bottom: 21px;
+  }
+
+  .filter-icon {
+    margin-inline-start: 8px;
   }
 
   .filter-select {

@@ -3,7 +3,6 @@ import {
   Component,
   OnDestroy,
   OnInit,
-  ViewChild,
 } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { finalize, map, startWith, switchMap, takeUntil } from 'rxjs/operators';
@@ -14,7 +13,6 @@ import {
   AggregatedSuiteResult,
 } from '../../../interfaces/aggregatedSuiteResult';
 import { DashboardTestResultsRepository } from '../../repositories/dashboard-test-results-repository-service';
-import { MatAccordion } from '@angular/material/expansion';
 
 export const DEFAULT_SUITE_RUN_COUNT_OPTION = '7';
 export const DEFAULT_FILTER_OPTION = '';
@@ -30,17 +28,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
   protected filteredTestResults$: BehaviorSubject<AggregatedSuiteResult[]> =
     new BehaviorSubject([]);
   protected flakyTestsCount$: BehaviorSubject<number> = new BehaviorSubject(0);
-  protected allPassedTestsCount$: BehaviorSubject<number> = new BehaviorSubject(
-    0
-  );
-  protected allFailedTestsCount$: BehaviorSubject<number> = new BehaviorSubject(
-    0
-  );
+  protected allPassedTestsCount$: BehaviorSubject<number> = new BehaviorSubject(0);
+  protected allFailedTestsCount$: BehaviorSubject<number> = new BehaviorSubject(0);
   protected queryForm: FormGroup;
   protected isLoading$: BehaviorSubject<boolean> = new BehaviorSubject(false);
   private _destroyed$ = new Subject<void>();
-
-  @ViewChild('accordion', { static: true }) protected accordion: MatAccordion;
 
   constructor(
     private readonly _dashboardTestResultsRepository: DashboardTestResultsRepository,
@@ -50,15 +42,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
   public ngOnInit(): void {
     this.initializeForm();
     this.setupFormValueChanges();
-
-    this.isLoading$
-      .asObservable()
-      .pipe(takeUntil(this._destroyed$))
-      .subscribe((isLoading: boolean) => {
-        if (isLoading) {
-          this.accordion.closeAll();
-        }
-      });
   }
 
   public ngOnDestroy(): void {
@@ -70,14 +53,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
     return test.title;
   }
 
-  public testRunSpecId(_: number, testRun: AggregatedSpecRun) {
+  public testRunSpecId(_: number, testRun: AggregatedSpecRun): string {
     return testRun.specId;
   }
 
-  public clickOnSuite(_: Event) {
-    if (this.isLoading$.getValue() === true) {
-      this.accordion.closeAll();
-    }
+  public get filterValue(): any {
+    return this.queryForm.get('filter').value;
   }
 
   private initializeForm(): void {

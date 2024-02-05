@@ -1,27 +1,33 @@
 <div class="statistics-dashboard-container">
   <div class="card statistics-card-container">
     <span class="statistics-test-count">{{ flakyTestsCount$ | async }}</span>
-    <h3 class="sub-title">Flaky test cases</h3>
+    <h3 class="sub-title flaky">Flaky test cases</h3>
   </div>
 
   <div class="card statistics-card-container">
     <span class="statistics-test-count">{{
       allPassedTestsCount$ | async
     }}</span>
-    <h3 class="sub-title">All passed test cases</h3>
+    <h3 class="sub-title passed">All passed test cases</h3>
   </div>
 
   <div class="card statistics-card-container">
     <span class="statistics-test-count">{{
       allFailedTestsCount$ | async
     }}</span>
-    <h3 class="sub-title">All failed test cases</h3>
+    <h3 class="sub-title failed">All failed test cases</h3>
   </div>
 </div>
 
 <div class="card">
   <div class="title-container" [formGroup]="queryForm">
     <h3 class="sub-title">Latest test suite run results</h3>
+    <mat-icon
+      *ngIf="filterValue"
+      class="filter-icon"
+      aria-hidden="true"
+      fontIcon="filter_list"
+    ></mat-icon>
     <mat-form-field class="filter-select">
       <mat-label>Filter</mat-label>
       <mat-select formControlName="filter" disableRipple>
@@ -44,11 +50,14 @@
     *ngIf="isLoading$.asObservable() | async"
   ></mat-spinner>
 
-  <mat-accordion multi #accordion="matAccordion">
+  <mat-accordion
+    *ngIf="!(isLoading$.asObservable() | async)"
+    multi
+    #accordion="matAccordion"
+  >
     <mat-expansion-panel
       class="expansion-panel"
       *ngFor="let suite of filteredTestResults$ | async"
-      (click)="clickOnSuite($event)"
     >
       <mat-expansion-panel-header class="expansion-header">
         <mat-panel-title>
