@@ -34,7 +34,7 @@ export class PlaywrightTestResultMongoService implements PlaywrightTestResultRea
     }
 
     public async getTestResults(testSuiteRunCount?: number): Promise<JSONReport[]> {
-        return await JSONReportModel.find({}, { '__id': 0 }).sort({ 'stats.startTime': -1 }).limit(testSuiteRunCount ?? 10);
+        return await JSONReportModel.find().sort({ 'stats.startTime': -1 }).limit(testSuiteRunCount ?? 10);
     }
 
     public async getAggregatedTestResults(testSuiteRunCount?: number): Promise<AggregatedSuiteResult[]> {
