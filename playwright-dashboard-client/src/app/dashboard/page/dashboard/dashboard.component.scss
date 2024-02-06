@@ -57,20 +57,23 @@
 
 .title-container {
   display: flex;
+  flex-wrap: wrap;
   align-items: flex-start;
 
   .sub-title {
     margin-bottom: 21px;
   }
 
-  .search-input {
+  .filter-container {
+    display: flex;
+    flex-wrap: wrap;
     margin-inline-start: auto;
-  }
 
-  .last-run-count-select,
-  .filter-select,
-  .filter-icon {
-    margin-inline-start: 8px;
+    .last-run-count-select,
+    .filter-select,
+    .filter-icon {
+      margin-inline-start: 8px;
+    }
   }
 }
 

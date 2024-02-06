@@ -64,6 +64,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
     return this.queryForm.get('filter').value;
   }
 
+  public get searchValue(): any {
+    return this.queryForm.get('search').value;
+  }
+
   private initializeForm(): void {
     this.queryForm = this._fb.group({
       lastRunCount: DEFAULT_SUITE_RUN_COUNT_OPTION,
