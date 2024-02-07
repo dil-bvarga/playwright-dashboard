@@ -1,8 +1,9 @@
 import mongoose from 'mongoose';
 import {
-    JSONReport, JSONReportSpec, JSONReportSuite, JSONReportTest,
+    JSONReportSpec, JSONReportSuite, JSONReportTest,
     JSONReportTestResult, JSONReportTestStep, Location, TestError
 } from '../types/testReporter';
+import { PlaywrightJSONReport } from './playwright-json-report';
 const { Schema } = mongoose;
 
 const MetadataSchema = Schema.Types.Mixed;
@@ -89,7 +90,11 @@ const JSONReportProjectSchema = new Schema({
     timeout: Number,
 }, { _id: false });
 
-const JSONReportSchema = new Schema<JSONReport>({
+const JSONReportSchema = new Schema<PlaywrightJSONReport>({
+    _id: {
+        type: String,
+        required: true,
+    },
     config: {
         metadata: MetadataSchema,
         projects: [JSONReportProjectSchema],

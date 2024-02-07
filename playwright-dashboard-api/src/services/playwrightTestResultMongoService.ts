@@ -23,7 +23,7 @@ export class PlaywrightTestResultMongoService implements PlaywrightTestResultRea
             const testResultData: JSONReport = JSON.parse(fs.readFileSync(sourceFilePath, 'utf8'));
             try {
                 // Save the test result to the database
-                await JSONReportModel.create(testResultData);
+                await JSONReportModel.create({ _id: folder, ...testResultData });
             } catch (error) {
                 console.error(error);
                 throw new Error('Error saving test result');

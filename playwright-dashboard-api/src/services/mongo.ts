@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 mongoose.connection.once('open', () => {
-    console.log('MongoDB connection ready!');
+    console.log('MongoDB connection is ready!');
 });
 
 mongoose.connection.on('error', (err) => {
