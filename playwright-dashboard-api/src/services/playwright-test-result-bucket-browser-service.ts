@@ -33,7 +33,7 @@ export async function getBucketBrowserTestRunFolderNames(): Promise<string[]> {
     })
         .then((response: any) => response.text())
         .then((xml: any) => {
-            return JSON.parse(convert.xml2json(xml, { compact: true, spaces: 4 }));
+            return JSON.parse(convert.xml2json(xml));
         })
         .catch((error: any) => {
             console.error(error);
