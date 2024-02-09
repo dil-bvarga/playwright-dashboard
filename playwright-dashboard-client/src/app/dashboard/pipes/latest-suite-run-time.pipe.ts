@@ -1,5 +1,8 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
+/**
+ * `LatestSuiteRunTimePipe` is a pipe that calculates the time elapsed since the start of a suite run.
+ */
 @Pipe({
   name: 'latestSuiteRunTime',
 })
@@ -10,7 +13,8 @@ export class LatestSuiteRunTimePipe implements PipeTransform {
     }
 
     const now = new Date();
-    const diffInMilliseconds = now.getTime() - new Date(suiteRunStartDate).getTime();
+    const diffInMilliseconds =
+      now.getTime() - new Date(suiteRunStartDate).getTime();
     const diffInMinutes = Math.floor(diffInMilliseconds / 1000 / 60);
     const diffInHours = Math.floor(diffInMilliseconds / 1000 / 60 / 60);
     const diffInDays = Math.floor(diffInMilliseconds / 1000 / 60 / 60 / 24);

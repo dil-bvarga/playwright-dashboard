@@ -21,14 +21,17 @@ import {
   AggregatedTestResult,
 } from '../../../interfaces/aggregated-suite-result';
 import { TestStatus } from '../../../interfaces/test-status';
+import { Interval } from '../../../interfaces/interval';
 import { TestResultsRepository } from '../../services/test-results-repository-service';
-import { Interval } from 'src/app/interfaces/interval';
 
 export const DEFAULT_FROM_OPTION = Interval.Week;
 export const DEFAULT_FILTER_OPTION = '';
 export const DEFAULT_TEST_STATUS_FILTER_OPTION = TestStatus.Flaky;
 export const DEBOUNCE_TIME_IN_MS = 500;
 
+/**
+ * `DashboardComponent` is an Angular component that manages the dashboard view.
+ */
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
@@ -71,37 +74,79 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this._destroyed$.complete();
   }
 
-  public testTitle(_: number, testResult: AggregatedSpecResult): string {
-    return testResult.title;
-  }
-
-  public testRunSpecId(_: number, testRun: AggregatedSpecRun): string {
-    return testRun.specId;
-  }
-
-  public testSuiteFile(
+  /**
+   * Returns the suite file of a given test suite result for Angular's trackBy function in *ngFor.
+   *
+   * @param {number} _ - The index of the test suite result. This parameter is not used.
+   * @param {AggregatedSuiteResult} testSuiteResult - The test suite result object.
+   * @returns {string} The suite file of the test suite result.
+   */
+  public trackByTestSuiteFile(
     _: number,
     testSuiteResult: AggregatedSuiteResult
   ): string {
     return testSuiteResult.suiteFile;
   }
 
+  /**
+   * Returns the title of a given test result for Angular's trackBy function in *ngFor.
+   *
+   * @param {number} _ - The index of the test result. This parameter is not used.
+   * @param {AggregatedSpecResult} testResult - The test result object.
+   * @returns {string} The title of the test result.
+   */
+  public trackByTestTitle(_: number, testResult: AggregatedSpecResult): string {
+    return testResult.title;
+  }
+
+  /**
+   * Returns the spec ID of a given test run for Angular's trackBy function in *ngFor.
+   *
+   * @param {number} _ - The index of the test run. This parameter is not used.
+   * @param {AggregatedSpecRun} testRun - The test run object.
+   * @returns {string} The spec ID of the test run.
+   */
+  public trackByTestRunSpecId(_: number, testRun: AggregatedSpecRun): string {
+    return testRun.specId;
+  }
+
+  /**
+   * Returns the current value of the 'testStatusFilter' field from the query form.
+   *
+   * @returns {string} The value of the 'testStatusFilter' field.
+   */
   public get testStatusFilterValue(): string {
     return this.queryForm.get('testStatusFilter').value;
   }
 
+  /**
+   * Returns the current value of the 'applicationFilter' field from the query form.
+   *
+   * @returns {string} The value of the 'applicationFilter' field.
+   */
   public get applicationFilterValue(): string {
     return this.queryForm.get('applicationFilter').value;
   }
 
+  /**
+   * Returns the current value of the 'search' field from the query form.
+   *
+   * @returns {string} The value of the 'search' field.
+   */
   public get searchValue(): string {
     return this.queryForm.get('search').value;
   }
 
+  /**
+   * Opens the details file of a given test run in a new browser tab.
+   *
+   * @param {AggregatedSpecRun} testRun - The test run object.
+   */
   public openTestRunDetailsFile(testRun: AggregatedSpecRun): void {
     window.open(testRun.specResultFileUrl, '_blank');
   }
 
+  /** Initializes the query form with default values. */
   private initializeForm(): void {
     this.queryForm = this._fb.group({
       from: DEFAULT_FROM_OPTION,
@@ -111,6 +156,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
     });
   }
 
+  /**
+   * Sets up the form value changes subscriptions.
+   * When the 'from' field changes, it fetches all aggregated test results from the repository.
+   * When any of the 'from', 'testStatusFilter', 'applicationFilter', or 'search' fields change,
+   * it filters the test results and calculates the tests count statistics.
+   */
   private setupFormValueChanges(): void {
     const { from, testStatusFilter, applicationFilter, search } =
       this.queryForm.controls;
@@ -156,6 +207,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
       });
   }
 
+  /**
+   * Returns a date calculated based on the 'from' parameter.
+   * If 'from' is 'day', it returns the date of the previous day.
+   * If 'from' is 'week', it returns the date of the same day in the previous week.
+   * If 'from' is 'month', it returns the date of the same day in the previous month.
+   * If 'from' is not recognized, it defaults to returning the date of the previous day.
+   *
+   * @param {string} from - The string representing the date range. Can be 'day', 'week', or 'month'.
+   * @returns {Date} The calculated date.
+   */
   private getFromDate(from: string): Date {
     const now = new Date();
 
@@ -173,6 +234,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * Calculates the count of flaky, all passed, and all failed tests from the given test results.
+   *
+   * @param {AggregatedSuiteResult[]} testResults - The array of test results to calculate statistics from.
+   */
   private calculateTestsCountStatistics(
     testResults: AggregatedSuiteResult[]
   ): void {
@@ -180,7 +246,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     let allPassedCount = 0;
     let allFailedCount = 0;
 
-    testResults.forEach((suiteResult) => {
+    testResults.forEach((suiteResult: AggregatedSuiteResult) => {
       suiteResult.specs.forEach((spec: AggregatedSpecResult) => {
         const flaky = spec.runs.some((run: AggregatedSpecRun) =>
           run.tests.some(
@@ -209,13 +275,22 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.allFailedTestsCount$.next(allFailedCount);
   }
 
+  /**
+   * Filters the given test results based on the provided filters.
+   *
+   * @param {AggregatedSuiteResult[]} testResults - The array of test results to filter.
+   * @param {string} testStatusFilter - The test status filter.
+   * @param {string} applicationFilter - The application filter.
+   * @param {string} search - The search string.
+   * @returns {AggregatedSuiteResult[]} The filtered array of test results.
+   */
   private filterTestResults(
     testResults: AggregatedSuiteResult[],
     testStatusFilter: string,
     applicationFilter: string,
     search: string
   ): AggregatedSuiteResult[] {
-    let results = testResults;
+    let results: AggregatedSuiteResult[] = testResults;
 
     if (applicationFilter) {
       results = results.filter(
@@ -225,7 +300,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
 
     if (search) {
-      const lowerCaseSearch = search.toLowerCase();
+      const lowerCaseSearch: string = search.toLowerCase();
       results = results.filter(
         (suiteResult: AggregatedSuiteResult) =>
           suiteResult.suiteTitle.toLowerCase().includes(lowerCaseSearch) ||

@@ -104,7 +104,10 @@
     <mat-expansion-panel
       class="expansion-panel"
       hideToggle="true"
-      *ngFor="let suite of filteredTestResults$ | async; trackBy: testSuiteFile"
+      *ngFor="
+        let suite of filteredTestResults$ | async;
+        trackBy: trackByTestSuiteFile
+      "
     >
       <mat-expansion-panel-header class="expansion-header">
         <mat-panel-title>
@@ -126,7 +129,7 @@
 
       <div
         class="test-result-container"
-        *ngFor="let test of suite.specs; trackBy: testTitle"
+        *ngFor="let test of suite.specs; trackBy: trackByTestTitle"
       >
         <div class="test-title-container">
           <p class="test-title">{{ test.title }}</p>
@@ -134,7 +137,7 @@
         </div>
 
         <div class="test-runs-column-container">
-          <div *ngFor="let testRun of test.runs; trackBy: testRunSpecId">
+          <div *ngFor="let testRun of test.runs; trackBy: trackByTestRunSpecId">
             <div
               class="test-run-rectangle"
               [ngClass]="{
