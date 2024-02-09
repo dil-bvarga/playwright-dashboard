@@ -25,26 +25,36 @@ export class PlaywrightTestResultMongoService implements PlaywrightTestResultRea
      * @returns {Promise<void>} A promise that resolves when all new test results have been saved to the database, or rejects if an error occurs.
      */
     public async syncTestResults(): Promise<void> {
+        // Retrieve the IDs of all stored test results
         const storedTestResultIds: string[] = (await PlaywrightJSONReportModel.find({}, { _id: 1 })).map((testResult) => testResult._id);
+
+        // Retrieve the names of all test result folders in the bucket browser
         const testResultFolders: string[] = await getBucketBrowserTestRunFolderNames();
 
         let allBucketBrowserTestSuiteRunResult: PlaywrightJSONReport[] = [];
 
+         // Retrieve the test results from each folder
         await Promise.all(testResultFolders.map(async (folderName: string) => {
+            // Retrieve the names of all test result files in the folder
             const testSuiteRunResultFileNames: string[] = await getBucketBrowserTestRunResultFileNames(folderName);
+            // Retrieve the test results from the files
             const testSuiteRunResult: PlaywrightJSONReport[] = await getBucketBrowserTestSuiteRunResults(folderName, testSuiteRunResultFileNames);
+             // Add the test results to the array
             allBucketBrowserTestSuiteRunResult = allBucketBrowserTestSuiteRunResult.concat(testSuiteRunResult);
         }));
 
-        // Filter out the existing test results
+         // Filter out the test results that are already stored
         const newBucketBrowserTestSuiteRunResult: PlaywrightJSONReport[] = allBucketBrowserTestSuiteRunResult.filter((testResult) => !storedTestResultIds.includes(testResult._id));
 
+        // If there are new test results, store them in the database
         if (newBucketBrowserTestSuiteRunResult.length > 0) {
             try {
                 await Promise.all(newBucketBrowserTestSuiteRunResult.map(async (testResult: PlaywrightJSONReport) => {
+                    // Store the test result in the database, using its ID as the key
                     await PlaywrightJSONReportModel.findOneAndUpdate({ _id: testResult._id }, testResult, { upsert: true });
                 }));
             } catch (error) {
+                // Log any errors that occur during the storage process
                 console.error(error);
                 throw new Error('Error saving test result');
             }
