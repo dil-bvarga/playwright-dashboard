@@ -147,7 +147,9 @@
                 flaky: testRun.tests | hasFlakyTestRuns
               }"
               #tooltip="matTooltip"
-              [matTooltip]="testRun.suiteRunStartTime | date : 'medium'"
+              [matTooltip]="
+                testRun.suiteRunStartTime | date : 'yyyy, MMM dd. - H:mm'
+              "
               [matTooltipPosition]="'above'"
               matTooltipHideDelay="100"
               (click)="openTestRunDetailsFile(testRun)"
