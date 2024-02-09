@@ -1,5 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { AggregatedTestResult } from '../../interfaces/aggregatedSuiteResult';
+import { AggregatedTestResult } from '../../interfaces/aggregated-suite-result';
 
 @Pipe({
   name: 'hasFlakyTestRuns',

@@ -1,9 +1,11 @@
 import mongoose from 'mongoose';
 import {
+    JSONReport,
     JSONReportSpec, JSONReportSuite, JSONReportTest,
     JSONReportTestResult, JSONReportTestStep, Location, TestError
 } from '../types/testReporter';
-import { PlaywrightJSONReport } from './playwright-json-report';
+import { PlaywrightJSONReport } from '../interfaces/playwright-json-report';
+
 const { Schema } = mongoose;
 
 const MetadataSchema = Schema.Types.Mixed;
@@ -26,6 +28,7 @@ const JSONReportTestStepSchema = new Schema<JSONReportTestStep>({
     title: String,
     duration: Number,
     error: TestErrorSchema,
+    steps: [Schema.Types.Mixed],
 }, { _id: false });
 
 const JSONReportTestResultSchema = new Schema<JSONReportTestResult>({
@@ -75,6 +78,7 @@ const JSONReportSuiteSchema = new Schema<JSONReportSuite>({
     column: Number,
     line: Number,
     specs: [JSONReportSpecSchema],
+    suites: [Schema.Types.Mixed],
 }, { _id: false });
 
 const JSONReportProjectSchema = new Schema({
@@ -90,11 +94,7 @@ const JSONReportProjectSchema = new Schema({
     timeout: Number,
 }, { _id: false });
 
-const JSONReportSchema = new Schema<PlaywrightJSONReport>({
-    _id: {
-        type: String,
-        required: true,
-    },
+const JSONReportSchema = new Schema<JSONReport>({
     config: {
         metadata: MetadataSchema,
         projects: [JSONReportProjectSchema],
@@ -109,6 +109,16 @@ const JSONReportSchema = new Schema<PlaywrightJSONReport>({
         flaky: Number,
         skipped: Number,
     },
+}, { _id: false });
+
+const PlaywrightJSONReportSchema = new Schema<PlaywrightJSONReport>({
+    _id: {
+        type: String,
+        required: true,
+    },
+    applicationName: String,
+    suiteFolderName: String,
+    result: JSONReportSchema,
 });
 
-export const JSONReportModel = mongoose.model('JSONReport', JSONReportSchema);
+export const PlaywrightJSONReportModel = mongoose.model('PlaywrightJSONReport', PlaywrightJSONReportSchema);

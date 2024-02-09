@@ -1,5 +1,4 @@
 import {
-  JSONReport,
   JSONReportSpec,
   JSONReportTest,
   JSONReportTestResult,
@@ -8,18 +7,23 @@ import {
 export interface AggregatedSuiteResult {
   suiteTitle: string;
   suiteFile: string;
+  applicationName: string;
+  suiteRunStartTime: Date; // Start time of the test suite run
   specs: AggregatedSpecResult[];
-  suiteRuns?: JSONReport[]; // Storing entire reports for suite-level stats
 }
 
-export interface AggregatedSpecResult extends Pick<JSONReportSpec, 'title' | 'file' | 'line'> {
+export interface AggregatedSpecResult
+  extends Pick<JSONReportSpec, 'title' | 'file' | 'line'> {
   runs: AggregatedSpecRun[];
 }
 
 export interface AggregatedSpecRun extends Pick<JSONReportSpec, 'ok'> {
   specId: string; // Identifier for the test run
-  suiteRunStartTime: string; // Start time of the test suite run
+  suiteRunStartTime: Date; // Start time of the test suite run
   tests: AggregatedTestResult[];
+  applicationName: string;
+  suiteFolderName: string;
+  specResultFileUrl: string;
 }
 
 export interface AggregatedTestResult
@@ -31,7 +35,4 @@ export interface AggregatedTestResult
 }
 
 export interface PartialTestResult
-  extends Pick<
-    JSONReportTestResult,
-    'status' | 'startTime' | 'duration' | 'retry'
-  > { }
+  extends Pick<JSONReportTestResult, 'status' | 'startTime'> {}

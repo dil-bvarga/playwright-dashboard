@@ -14,6 +14,8 @@ import { AllExpectedTestRunsPipe } from './pipes/all-expected-test-runs.pipe';
 import { HasSkippedTestRunsPipe } from './pipes/has-skipped-test-runs.pipe';
 import { HasUnexpectedTestRunsPipe } from './pipes/has-unexpected-test-runs.pipe';
 import { HasFlakyTestRunsPipe } from './pipes/has-flaky-test-runs.pipe';
+import { TestResultsRepository } from './services/test-results-repository-service';
+import { DashboardTestResultsRepository } from './repositories/dashboard-test-results-repository-service';
 
 @NgModule({
   declarations: [
@@ -37,5 +39,8 @@ import { HasFlakyTestRunsPipe } from './pipes/has-flaky-test-runs.pipe';
     MatProgressSpinnerModule
   ],
   exports: [DashboardComponent],
+  providers: [
+    { provide: TestResultsRepository, useExisting: DashboardTestResultsRepository },
+  ]
 })
 export class DashboardModule { }

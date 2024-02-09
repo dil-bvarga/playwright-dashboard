@@ -5,18 +5,28 @@ import {
   OnInit,
 } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
-import { debounceTime, finalize, map, startWith, switchMap, takeUntil } from 'rxjs/operators';
+import {
+  debounceTime,
+  finalize,
+  startWith,
+  switchMap,
+  takeUntil,
+  tap,
+} from 'rxjs/operators';
 import { BehaviorSubject, Observable, Subject, combineLatest } from 'rxjs';
 import {
   AggregatedSpecResult,
   AggregatedSpecRun,
   AggregatedSuiteResult,
-} from '../../../interfaces/aggregatedSuiteResult';
-import { DashboardTestResultsRepository } from '../../repositories/dashboard-test-results-repository-service';
-import { TestStatus } from '../../../interfaces/testStatus';
+  AggregatedTestResult,
+} from '../../../interfaces/aggregated-suite-result';
+import { TestStatus } from '../../../interfaces/test-status';
+import { TestResultsRepository } from '../../services/test-results-repository-service';
+import { Interval } from 'src/app/interfaces/interval';
 
-export const DEFAULT_SUITE_RUN_COUNT_OPTION = '7';
+export const DEFAULT_FROM_OPTION = Interval.Week;
 export const DEFAULT_FILTER_OPTION = '';
+export const DEFAULT_TEST_STATUS_FILTER_OPTION = TestStatus.Flaky;
 export const DEBOUNCE_TIME_IN_MS = 500;
 
 @Component({
@@ -30,17 +40,26 @@ export class DashboardComponent implements OnInit, OnDestroy {
   protected filteredTestResults$: BehaviorSubject<AggregatedSuiteResult[]> =
     new BehaviorSubject([]);
   protected flakyTestsCount$: BehaviorSubject<number> = new BehaviorSubject(0);
-  protected allPassedTestsCount$: BehaviorSubject<number> = new BehaviorSubject(0);
-  protected allFailedTestsCount$: BehaviorSubject<number> = new BehaviorSubject(0);
+  protected allPassedTestsCount$: BehaviorSubject<number> = new BehaviorSubject(
+    0
+  );
+  protected allFailedTestsCount$: BehaviorSubject<number> = new BehaviorSubject(
+    0
+  );
   protected queryForm: FormGroup;
   protected isLoading$: BehaviorSubject<boolean> = new BehaviorSubject(false);
   protected TestStatus = TestStatus;
+  protected Interval = Interval;
+  public get applications(): string[] {
+    return Array.from(this._applications).sort();
+  }
+  private _applications: Set<string> = new Set<string>();
   private _destroyed$ = new Subject<void>();
 
   constructor(
-    private readonly _dashboardTestResultsRepository: DashboardTestResultsRepository,
+    private readonly _testResultsRepository: TestResultsRepository,
     private readonly _fb: FormBuilder
-  ) { }
+  ) {}
 
   public ngOnInit(): void {
     this.initializeForm();
@@ -52,66 +71,106 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this._destroyed$.complete();
   }
 
-  public testTitle(_: number, test: AggregatedSpecResult): string {
-    return test.title;
+  public testTitle(_: number, testResult: AggregatedSpecResult): string {
+    return testResult.title;
   }
 
   public testRunSpecId(_: number, testRun: AggregatedSpecRun): string {
     return testRun.specId;
   }
 
-  public get filterValue(): any {
-    return this.queryForm.get('filter').value;
+  public testSuiteFile(
+    _: number,
+    testSuiteResult: AggregatedSuiteResult
+  ): string {
+    return testSuiteResult.suiteFile;
   }
 
-  public get searchValue(): any {
+  public get testStatusFilterValue(): string {
+    return this.queryForm.get('testStatusFilter').value;
+  }
+
+  public get applicationFilterValue(): string {
+    return this.queryForm.get('applicationFilter').value;
+  }
+
+  public get searchValue(): string {
     return this.queryForm.get('search').value;
+  }
+
+  public openTestRunDetailsFile(testRun: AggregatedSpecRun): void {
+    window.open(testRun.specResultFileUrl, '_blank');
   }
 
   private initializeForm(): void {
     this.queryForm = this._fb.group({
-      lastRunCount: DEFAULT_SUITE_RUN_COUNT_OPTION,
-      filter: DEFAULT_FILTER_OPTION,
-      search: ''
+      from: DEFAULT_FROM_OPTION,
+      testStatusFilter: DEFAULT_TEST_STATUS_FILTER_OPTION,
+      applicationFilter: DEFAULT_FILTER_OPTION,
+      search: DEFAULT_FILTER_OPTION,
     });
   }
 
   private setupFormValueChanges(): void {
-    this.allAggregatedTestResults$ = this.queryForm
-      .get('lastRunCount')
-      .valueChanges.pipe(
-        startWith(this.queryForm.get('lastRunCount').value),
-        switchMap((lastRunCount) => {
-          this.isLoading$.next(true);
-          return this._dashboardTestResultsRepository
-            .getAllAggregatedTestResults(lastRunCount)
-            .pipe(finalize(() => this.isLoading$.next(false)));
-        }),
-        takeUntil(this._destroyed$)
-      );
+    const { from, testStatusFilter, applicationFilter, search } =
+      this.queryForm.controls;
 
-    // Combine the test results with the filter form control value changes
+    this.allAggregatedTestResults$ = from.valueChanges.pipe(
+      startWith(from.value),
+      switchMap((fromValue) => {
+        this.isLoading$.next(true);
+        return this._testResultsRepository
+          .getAllAggregatedTestResults(this.getFromDate(fromValue))
+          .pipe(finalize(() => this.isLoading$.next(false)));
+      }),
+      tap((results) => {
+        results.forEach((suiteResult) => {
+          this._applications.add(suiteResult.applicationName);
+        });
+        if (!this.applicationFilterValue) {
+          applicationFilter.setValue(Array.from(this.applications)[0]);
+        }
+      }),
+      takeUntil(this._destroyed$)
+    );
+
     combineLatest([
       this.allAggregatedTestResults$,
-      this.queryForm
-        .get('filter')
-        .valueChanges.pipe(startWith(this.queryForm.get('filter').value)),
-      this.queryForm
-        .get('search')
-        .valueChanges.pipe(startWith(this.queryForm.get('search').value), debounceTime(DEBOUNCE_TIME_IN_MS)),
+      testStatusFilter.valueChanges.pipe(startWith(testStatusFilter.value)),
+      applicationFilter.valueChanges.pipe(startWith(applicationFilter.value)),
+      search.valueChanges.pipe(
+        startWith(search.value),
+        debounceTime(DEBOUNCE_TIME_IN_MS)
+      ),
     ])
-      .pipe(
-        map(([results, filter, search]) =>
-          // Apply the filter to the results
-          this.filterTestResults(results, filter, search)
-        ),
-        takeUntil(this._destroyed$)
-      )
-      .subscribe((filteredResults) => {
+      .pipe(takeUntil(this._destroyed$))
+      .subscribe(([testResults, testStatus, application, searchValue]) => {
+        const filteredResults: AggregatedSuiteResult[] = this.filterTestResults(
+          testResults,
+          testStatus,
+          application,
+          searchValue
+        );
         this.filteredTestResults$.next(filteredResults);
-        // Calculate statistics
         this.calculateTestsCountStatistics(filteredResults);
       });
+  }
+
+  private getFromDate(from: string): Date {
+    const now = new Date();
+
+    switch (from) {
+      case 'day':
+        return new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+      case 'week':
+        return new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7);
+      case 'month':
+        return new Date(
+          new Date(now.getFullYear(), now.getMonth() - 1, now.getDate())
+        );
+      default:
+        return new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+    }
   }
 
   private calculateTestsCountStatistics(
@@ -120,22 +179,31 @@ export class DashboardComponent implements OnInit, OnDestroy {
     let flakyCount = 0;
     let allPassedCount = 0;
     let allFailedCount = 0;
+
     testResults.forEach((suiteResult) => {
-      suiteResult.specs.forEach((spec) => {
-        const flaky = spec.runs.some((run) =>
-          run.tests.some((test) => test.status === TestStatus.Flaky)
+      suiteResult.specs.forEach((spec: AggregatedSpecResult) => {
+        const flaky = spec.runs.some((run: AggregatedSpecRun) =>
+          run.tests.some(
+            (test: AggregatedTestResult) => test.status === TestStatus.Flaky
+          )
         );
-        const allPassed = spec.runs.every((run) =>
-          run.tests.some((test) => test.status === TestStatus.Expected)
+        const allPassed = spec.runs.every((run: AggregatedSpecRun) =>
+          run.tests.some(
+            (test: AggregatedTestResult) => test.status === TestStatus.Expected
+          )
         );
-        const allFailed = spec.runs.every((run) =>
-          run.tests.some((test) => test.status === TestStatus.Unexpected)
+        const allFailed = spec.runs.every((run: AggregatedSpecRun) =>
+          run.tests.some(
+            (test: AggregatedTestResult) =>
+              test.status === TestStatus.Unexpected
+          )
         );
         if (flaky) flakyCount++;
         if (allPassed) allPassedCount++;
         if (allFailed) allFailedCount++;
       });
     });
+
     this.flakyTestsCount$.next(flakyCount);
     this.allPassedTestsCount$.next(allPassedCount);
     this.allFailedTestsCount$.next(allFailedCount);
@@ -143,29 +211,39 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   private filterTestResults(
     testResults: AggregatedSuiteResult[],
-    filter: string,
+    testStatusFilter: string,
+    applicationFilter: string,
     search: string
   ): AggregatedSuiteResult[] {
     let results = testResults;
+
+    if (applicationFilter) {
+      results = results.filter(
+        (suiteResult: AggregatedSuiteResult) =>
+          suiteResult.applicationName === applicationFilter
+      );
+    }
 
     if (search) {
       const lowerCaseSearch = search.toLowerCase();
       results = results.filter(
         (suiteResult: AggregatedSuiteResult) =>
           suiteResult.suiteTitle.toLowerCase().includes(lowerCaseSearch) ||
-          suiteResult.specs.some((spec) =>
+          suiteResult.specs.some((spec: AggregatedSpecResult) =>
             spec.title.toLowerCase().includes(lowerCaseSearch)
           )
       );
     }
 
-    if (filter === TestStatus.Flaky) {
+    if (testStatusFilter === TestStatus.Flaky) {
       results = results
         .map((suiteResult: AggregatedSuiteResult) => ({
           ...suiteResult,
-          specs: suiteResult.specs.filter((spec) =>
-            spec.runs.some((run) =>
-              run.tests.some((test) => test.status === TestStatus.Flaky)
+          specs: suiteResult.specs.filter((spec: AggregatedSpecResult) =>
+            spec.runs.some((run: AggregatedSpecRun) =>
+              run.tests.some(
+                (test: AggregatedTestResult) => test.status === TestStatus.Flaky
+              )
             )
           ),
         }))

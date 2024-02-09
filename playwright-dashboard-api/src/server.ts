@@ -1,7 +1,7 @@
-import dotenv from "dotenv";
-import http from "http";
-import { app } from "./app";
-import { mongoConnect } from "./services/mongo";
+import dotenv from 'dotenv';
+import http from 'http';
+import { app } from './app';
+import { mongoConnect } from './services/mongo';
 
 dotenv.config();
 

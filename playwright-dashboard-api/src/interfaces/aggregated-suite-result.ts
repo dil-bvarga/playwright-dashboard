@@ -1,10 +1,11 @@
-import { JSONReport, JSONReportSpec, JSONReportTest, JSONReportTestResult } from "../types/testReporter";
+import { JSONReportSpec, JSONReportTest, JSONReportTestResult } from '../types/testReporter';
 
 export interface AggregatedSuiteResult {
     suiteTitle: string;
     suiteFile: string;
+    suiteRunStartTime: Date; // Start time of the test suite run
+    applicationName: string;
     specs: AggregatedSpecResult[];
-    suiteRuns?: JSONReport[]; // Storing entire reports for suite-level stats
 }
 
 interface AggregatedSpecResult extends Pick<JSONReportSpec, | 'title' | 'file' | 'line'> {
@@ -13,14 +14,16 @@ interface AggregatedSpecResult extends Pick<JSONReportSpec, | 'title' | 'file' |
 
 interface AggregatedSpecRun extends Pick<JSONReportSpec, | 'ok'> {
     specId: string; // Identifier for the test
-    suiteRunStartTime: string; // Start time of the test suite run
+    suiteRunStartTime: Date; // Start time of the test suite run
     tests: AggregatedTestResult[];
+    applicationName: string;
+    suiteFolderName: string;
+    specResultFileUrl: string;
 }
 
 interface AggregatedTestResult extends Pick<JSONReportTest, | 'expectedStatus' | 'status' | 'projectName' | 'projectId'> {
     results: PartialTestResult[];
 }
 
-interface PartialTestResult extends Pick<JSONReportTestResult, | 'status' | 'startTime' | 'duration' | 'retry'> {
+interface PartialTestResult extends Pick<JSONReportTestResult, | 'status' | 'startTime'> {
 }
-

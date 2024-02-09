@@ -1,6 +1,8 @@
-import { JSONReport } from "../types/testReporter";
+import { JSONReport } from '../types/testReporter';
 
-export interface PlaywrightJSONReport extends JSONReport {
+export interface PlaywrightJSONReport {
     _id: string;
-    project: string;
+    applicationName: string;
+    suiteFolderName: string;
+    result: JSONReport;
 }

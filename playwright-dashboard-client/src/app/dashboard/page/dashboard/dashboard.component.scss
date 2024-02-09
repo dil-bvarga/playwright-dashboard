@@ -12,6 +12,7 @@
 
 .statistics-dashboard-container {
   display: flex;
+  flex-wrap: wrap;
   gap: 18px;
   justify-content: space-around;
 
@@ -55,6 +56,14 @@
   stroke: #2f3b4d;
 }
 
+::ng-deep {
+  .mat-accordion {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+}
+
 .title-container {
   display: flex;
   flex-wrap: wrap;
@@ -64,14 +73,17 @@
     margin-bottom: 21px;
   }
 
+  .filter-icon {
+    margin-inline-start: 8px;
+  }
+
   .filter-container {
     display: flex;
     flex-wrap: wrap;
     margin-inline-start: auto;
 
     .last-run-count-select,
-    .filter-select,
-    .filter-icon {
+    .filter-select {
       margin-inline-start: 8px;
     }
   }
@@ -110,21 +122,26 @@
 
   .test-result-container {
     display: flex;
-    gap: 8px;
-    margin-bottom: 12px;
+    gap: 24px;
     padding-inline-start: 36px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid #8080802e;
+
+    &:not(:last-child) {
+      margin-bottom: 12px;
+      border-bottom: 1px solid #8080802e;
+      padding-bottom: 8px;
+    }
 
     .test-title-container {
       display: flex;
       flex-direction: column;
 
-      max-width: 350px;
+      max-width: 550px;
       width: 100%;
 
       .test-title {
         font-size: 14px;
+        font-weight: 500;
+        word-break: break-word;
       }
 
       .test-line {
@@ -140,9 +157,10 @@
       width: 100%;
 
       .test-run-rectangle {
-        width: 8px;
+        width: 12px;
         height: 25px;
         border-radius: 2px;
+        cursor: pointer;
 
         &.expected {
           background-color: #10ce66;
