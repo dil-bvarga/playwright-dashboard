@@ -33,17 +33,17 @@ export class PlaywrightTestResultMongoService implements PlaywrightTestResultRea
 
         let allBucketBrowserTestSuiteRunResult: PlaywrightJSONReport[] = [];
 
-         // Retrieve the test results from each folder
+        // Retrieve the test results from each folder
         await Promise.all(testResultFolders.map(async (folderName: string) => {
             // Retrieve the names of all test result files in the folder
             const testSuiteRunResultFileNames: string[] = await getBucketBrowserTestRunResultFileNames(folderName);
             // Retrieve the test results from the files
             const testSuiteRunResult: PlaywrightJSONReport[] = await getBucketBrowserTestSuiteRunResults(folderName, testSuiteRunResultFileNames);
-             // Add the test results to the array
+            // Add the test results to the array
             allBucketBrowserTestSuiteRunResult = allBucketBrowserTestSuiteRunResult.concat(testSuiteRunResult);
         }));
 
-         // Filter out the test results that are already stored
+        // Filter out the test results that are already stored
         const newBucketBrowserTestSuiteRunResult: PlaywrightJSONReport[] = allBucketBrowserTestSuiteRunResult.filter((testResult) => !storedTestResultIds.includes(testResult._id));
 
         // If there are new test results, store them in the database
@@ -87,19 +87,52 @@ export class PlaywrightTestResultMongoService implements PlaywrightTestResultRea
     }
 
     /**
+     * Retrieves the latest test results for each application from the PlaywrightJSONReportModel collection.
+     *
+     * The function uses MongoDB's aggregation framework to sort the documents by the 'result.stats.startTime' field in descending order, group them by the 'applicationName' field, and get the first document (i.e., the latest test result) in each group.
+     * The '$replaceRoot' stage replaces the root of each document with the 'latestResult' field, so the output documents have the same structure as the input documents.
+     *
+     * @returns {Promise<PlaywrightJSONReport[]>} A promise that resolves to an array of the latest PlaywrightJSONReport objects for each application.
+     */
+    public async getLatestTestResults(): Promise<PlaywrightJSONReport[]> {
+        return await PlaywrightJSONReportModel.aggregate([
+            {
+                $sort: {
+                    'result.stats.startTime': -1
+                }
+            },
+            {
+                $group: {
+                    _id: '$applicationName',
+                    latestResult: { $first: '$$ROOT' }
+                }
+            },
+            {
+                $replaceRoot: {
+                    newRoot: '$latestResult'
+                }
+            }
+        ]);
+    }
+
+    /**
      * Retrieves and aggregates test results from the MongoDB database.
-     * 
-     * This method first calls `getTestResults` to retrieve the test results from the database.
-     * If a `from` date is provided, it retrieves only the test results that started on or after this date.
-     * Otherwise, it retrieves all test results.
-     * 
-     * The method then calls `aggregateTestResults` to aggregate the test results.
      * 
      * @param {Date} [from] - The date from which to retrieve test results. If provided, only test results that started on or after this date are retrieved.
      * @returns {Promise<AggregatedSuiteResult[]>} A promise that resolves to an array of aggregated test results.
      */
     public async getAggregatedTestResults(from?: Date): Promise<AggregatedSuiteResult[]> {
         const testResults: PlaywrightJSONReport[] = await this.getTestResults(from);
+        return aggregateTestResults(testResults);
+    }
+
+    /**
+     * Retrieves the latest aggregated test results for each application.
+     *
+     * @returns {Promise<AggregatedSuiteResult[]>} A promise that resolves to an array of the latest AggregatedSuiteResult objects for each application.
+     */
+    public async getLatestAggregatedTestResults(): Promise<AggregatedSuiteResult[]> {
+        const testResults: PlaywrightJSONReport[] = await this.getLatestTestResults();
         return aggregateTestResults(testResults);
     }
 }

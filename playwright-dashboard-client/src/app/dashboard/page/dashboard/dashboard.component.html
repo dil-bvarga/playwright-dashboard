@@ -78,6 +78,7 @@
       <mat-form-field class="last-run-count-select">
         <mat-label>From</mat-label>
         <mat-select formControlName="from" disableRipple>
+          <mat-option [value]="Interval.LastRun">Last run</mat-option>
           <mat-option [value]="Interval.Day">Last 24 hours</mat-option>
           <mat-option [value]="Interval.Week">Last week</mat-option>
           <mat-option [value]="Interval.Month">Last month</mat-option>

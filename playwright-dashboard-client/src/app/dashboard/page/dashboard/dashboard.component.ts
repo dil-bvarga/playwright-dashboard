@@ -159,9 +159,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   /**
    * Sets up the form value changes subscriptions.
-   * When the 'from' field changes, it fetches all aggregated test results from the repository.
-   * When any of the 'from', 'testStatusFilter', 'applicationFilter', or 'search' fields change,
-   * it filters the test results and calculates the tests count statistics.
    */
   private setupFormValueChanges(): void {
     const { from, testStatusFilter, applicationFilter, search } =
@@ -169,19 +166,15 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     this.allAggregatedTestResults$ = from.valueChanges.pipe(
       startWith(from.value),
-      switchMap((fromValue) => {
+      switchMap((fromValue: Interval) => {
         this.isLoading$.next(true);
-        return this._testResultsRepository
-          .getAllAggregatedTestResults(this.getFromDate(fromValue))
-          .pipe(
-            map((results: AggregatedSuiteResult[]) =>
-              results.sort((a, b) => a.suiteTitle.localeCompare(b.suiteTitle))
-            ),
-            finalize(() => this.isLoading$.next(false))
-          );
+        return this.getResults(fromValue).pipe(
+          map(this.sortResults),
+          finalize(() => this.isLoading$.next(false))
+        );
       }),
-      tap((results) => {
-        results.forEach((suiteResult) => {
+      tap((results: AggregatedSuiteResult[]) => {
+        results.forEach((suiteResult: AggregatedSuiteResult) => {
           this._applications.add(suiteResult.applicationName);
         });
         if (!this.applicationFilterValue) {
@@ -214,24 +207,56 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Returns a date calculated based on the 'from' parameter.
-   * If 'from' is 'day', it returns the date of the previous day.
-   * If 'from' is 'week', it returns the date of the same day in the previous week.
-   * If 'from' is 'month', it returns the date of the same day in the previous month.
-   * If 'from' is not recognized, it defaults to returning the date of the previous day.
+   * Retrieves aggregated test results based on the provided 'fromValue' parameter.
    *
-   * @param {string} from - The string representing the date range. Can be 'day', 'week', or 'month'.
+   * - If 'fromValue' is 'Interval.LastRun', it retrieves the latest aggregated test results.
+   * - Otherwise, it retrieves all aggregated test results from a specific date, which is calculated based on 'fromValue'.
+   *
+   * @param {Interval} fromValue - The enum representing the date range.
+   * @returns {Observable<AggregatedSuiteResult[]>} An Observable that emits an array of AggregatedSuiteResult objects.
+   */
+  private getResults(fromValue: Interval): Observable<AggregatedSuiteResult[]> {
+    if (fromValue === Interval.LastRun) {
+      return this._testResultsRepository.getLatestAggregatedTestResults();
+    } else {
+      return this._testResultsRepository.getAllAggregatedTestResults(
+        this.getFromDate(fromValue)
+      );
+    }
+  }
+
+  /**
+   * Sorts an array of AggregatedSuiteResult objects in place by the suiteTitle property in ascending order.
+   *
+   * @param {AggregatedSuiteResult[]} results - The array of AggregatedSuiteResult objects to sort.
+   * @returns {AggregatedSuiteResult[]} The sorted array of AggregatedSuiteResult objects.
+   */
+  private sortResults(
+    results: AggregatedSuiteResult[]
+  ): AggregatedSuiteResult[] {
+    return results.sort((a, b) => a.suiteTitle.localeCompare(b.suiteTitle));
+  }
+
+  /**
+   * Calculates and returns a date based on the provided 'from' parameter.
+   *
+   * - If 'from' is 'Interval.Day', it returns the date of the previous day.
+   * - If 'from' is 'Interval.Week', it returns the date of the same day in the previous week.
+   * - If 'from' is 'Interval.Month', it returns the date of the same day in the previous month.
+   * - If 'from' is not recognized, it defaults to returning the date of the previous day.
+   *
+   * @param {Interval} from - The enum representing the date range.
    * @returns {Date} The calculated date.
    */
-  private getFromDate(from: string): Date {
+  private getFromDate(from: Interval): Date {
     const now = new Date();
 
     switch (from) {
-      case 'day':
+      case Interval.Day:
         return new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
-      case 'week':
+      case Interval.Week:
         return new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7);
-      case 'month':
+      case Interval.Month:
         return new Date(
           new Date(now.getFullYear(), now.getMonth() - 1, now.getDate())
         );

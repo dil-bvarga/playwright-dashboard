@@ -11,4 +11,8 @@ export abstract class TestResultsRepository {
   public abstract getAllAggregatedTestResults(
     from: Date
   ): Observable<AggregatedSuiteResult[]>;
+
+  public abstract getLatestAggregatedTestResults(): Observable<
+    AggregatedSuiteResult[]
+  >;
 }

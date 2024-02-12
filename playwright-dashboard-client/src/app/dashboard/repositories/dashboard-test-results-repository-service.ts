@@ -42,4 +42,15 @@ export class DashboardTestResultsRepository extends TestResultsRepository {
       { params: params }
     );
   }
+
+  /**
+   * Retrieves the latest aggregated test results from the server.
+   *
+   * @returns {Observable<AggregatedSuiteResult[]>} An Observable that emits an array of the latest AggregatedSuiteResult objects.
+   */
+  public getLatestAggregatedTestResults(): Observable<AggregatedSuiteResult[]> {
+    return this._http.get<AggregatedSuiteResult[]>(
+      `${environment.apiUrl}/test-results/aggregated/latest`
+    );
+  }
 }
