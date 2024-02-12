@@ -41,21 +41,32 @@ export const MAX_RUNS_FOR_MINIMIZED_VIEW = 40;
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DashboardComponent implements OnInit, OnDestroy {
+  /** An Observable of all aggregated test results. */
   protected allAggregatedTestResults$: Observable<AggregatedSuiteResult[]>;
+  /** A BehaviorSubject of filtered test results. */
   protected filteredTestResults$: BehaviorSubject<AggregatedSuiteResult[]> =
     new BehaviorSubject([]);
+  /** A BehaviorSubject of the count of flaky tests. */
   protected flakyTestsCount$: BehaviorSubject<number> = new BehaviorSubject(0);
+  /** A BehaviorSubject of the count of all passed tests. */
   protected allPassedTestsCount$: BehaviorSubject<number> = new BehaviorSubject(
     0
   );
+  /** A BehaviorSubject of the count of all failed tests. */
   protected allFailedTestsCount$: BehaviorSubject<number> = new BehaviorSubject(
     0
   );
+  /** A FormGroup for handling the query form. */
   protected queryForm: FormGroup;
+  /** A BehaviorSubject indicating whether the test result data is loading. */
   protected isLoading$: BehaviorSubject<boolean> = new BehaviorSubject(false);
+  /** A reference to the TestStatus enum. */
   protected readonly TestStatus = TestStatus;
+  /** A reference to the Interval enum. */
   protected readonly Interval = Interval;
+  /** The maximum number of runs for a test to be considered for minimized view. */
   protected readonly maxRunsForMinimizedView = MAX_RUNS_FOR_MINIMIZED_VIEW;
+  /** A getter that returns a sorted array of unique application names. */
   protected get applications(): string[] {
     return Array.from(this._applications).sort();
   }
