@@ -152,7 +152,8 @@
                 expected: testRun.tests | allExpectedTestRuns,
                 skipped: testRun.tests | hasSkippedTestRuns,
                 unexpected: testRun.tests | hasUnexpectedTestRuns,
-                flaky: testRun.tests | hasFlakyTestRuns
+                flaky: testRun.tests | hasFlakyTestRuns,
+                minimized: test.runs.length >= maxRunsForMinimizedView
               }"
               #tooltip="matTooltip"
               [matTooltip]="

@@ -162,6 +162,10 @@
         border-radius: 2px;
         cursor: pointer;
 
+        &.minimized {
+          width: 4px;
+        }
+
         &.expected {
           background-color: #10ce66;
         }

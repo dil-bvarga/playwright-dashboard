@@ -29,6 +29,7 @@ export const DEFAULT_FROM_OPTION = Interval.Week;
 export const DEFAULT_FILTER_OPTION = '';
 export const DEFAULT_TEST_STATUS_FILTER_OPTION = TestStatus.Flaky;
 export const DEBOUNCE_TIME_IN_MS = 500;
+export const MAX_RUNS_FOR_MINIMIZED_VIEW = 40;
 
 /**
  * `DashboardComponent` is an Angular component that manages the dashboard view.
@@ -52,9 +53,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
   );
   protected queryForm: FormGroup;
   protected isLoading$: BehaviorSubject<boolean> = new BehaviorSubject(false);
-  protected TestStatus = TestStatus;
-  protected Interval = Interval;
-  public get applications(): string[] {
+  protected readonly TestStatus = TestStatus;
+  protected readonly Interval = Interval;
+  protected readonly maxRunsForMinimizedView = MAX_RUNS_FOR_MINIMIZED_VIEW;
+  protected get applications(): string[] {
     return Array.from(this._applications).sort();
   }
   private _applications: Set<string> = new Set<string>();
