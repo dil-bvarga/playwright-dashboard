@@ -59,8 +59,7 @@ export async function getBucketBrowserTestRunFolderNames(): Promise<string[]> {
  * 
  * @param {string} testSuiteRunFolderName - The name of the test suite run folder. Defaults to an empty string.
  * 
- * @throws {Error} Throws an error if the `BUCKET_BROWSER_API_URL_PREFIX` or `BUCKET_BROWSER_CLIENT_RESULT_FOLDER_NAME` 
- * environment variables are not set.
+ * @throws {Error} Throws an error if the `BUCKET_BROWSER_API_URL_PREFIX` environment variable is not set.
  * 
  * @returns {Promise<string[]>} A promise that resolves to an array of test run result file names, or rejects if an error occurs.
  */
@@ -70,13 +69,11 @@ export async function getBucketBrowserTestRunResultFileNames(testSuiteRunFolderN
 
     if (!bucketBrowserApiUrlPrefix) {
         throw new Error('BUCKET_BROWSER_API_URL_PREFIX is not set');
-    } else if (!bucketBrowserClientResultFolderName) {
-        throw new Error('BUCKET_BROWSER_CLIENT_RESULT_FOLDER_NAME is not set');
     }
 
     let fileNames: string[] = [];
 
-    const bucketBrowserTestSuiteRunResultFolderApiUrl: string = `${bucketBrowserApiUrlPrefix}/${testSuiteRunFolderName}/${bucketBrowserClientResultFolderName}/&max-keys=50`;
+    const bucketBrowserTestSuiteRunResultFolderApiUrl: string = getBucketBrowserTestSuiteRunResultFolderApiUrl(bucketBrowserApiUrlPrefix, testSuiteRunFolderName, bucketBrowserClientResultFolderName);
 
     const bucketBrowserTestSuiteRunResultFiles = await fetch(bucketBrowserTestSuiteRunResultFolderApiUrl, {
         method: 'GET',
@@ -108,6 +105,26 @@ export async function getBucketBrowserTestRunResultFileNames(testSuiteRunFolderN
 }
 
 /**
+ * Constructs the API URL for fetching test suite run results from the bucket browser.
+ *
+ * @param {string} bucketBrowserApiUrlPrefix - The prefix of the bucket browser API URL.
+ * @param {string} testSuiteRunFolderName - The name of the test suite run folder.
+ * @param {string} [bucketBrowserClientResultFolderName] - The name of the client result folder in the bucket browser (optional).
+ * @returns {string} The constructed API URL.
+ */
+function getBucketBrowserTestSuiteRunResultFolderApiUrl(bucketBrowserApiUrlPrefix: string, testSuiteRunFolderName: string, bucketBrowserClientResultFolderName?: string): string {
+    let bucketBrowserTestSuiteRunResultFolderApiUrl: string = `${bucketBrowserApiUrlPrefix}/${testSuiteRunFolderName}`;
+
+    if (bucketBrowserClientResultFolderName) {
+        bucketBrowserTestSuiteRunResultFolderApiUrl += `/${bucketBrowserClientResultFolderName}`;
+    }
+
+    bucketBrowserTestSuiteRunResultFolderApiUrl += '/&max-keys=50';
+
+    return bucketBrowserTestSuiteRunResultFolderApiUrl;
+}
+
+/**
  * Retrieves the test suite run results from the bucket browser.
  * 
  * This function fetches the JSON response from the bucket browser API for each file in the test suite run, 
@@ -118,8 +135,7 @@ export async function getBucketBrowserTestRunResultFileNames(testSuiteRunFolderN
  * @param {string} testSuiteRunFolderName - The name of the test suite run folder. Defaults to an empty string.
  * @param {string[]} testSuiteRunFileNames - An array of test suite run file names. Defaults to an empty array.
  * 
- * @throws {Error} Throws an error if the `BUCKET_BROWSER_CLIENT_URL_PREFIX` or `BUCKET_BROWSER_CLIENT_RESULT_FOLDER_NAME` 
- * environment variables are not set.
+ * @throws {Error} Throws an error if the `BUCKET_BROWSER_CLIENT_URL_PREFIX` environment variable is not set.
  * 
  * @returns {Promise<PlaywrightJSONReport[]>} A promise that resolves to an array of PlaywrightJSONReport objects, 
  * or rejects if an error occurs.
@@ -130,14 +146,12 @@ export async function getBucketBrowserTestSuiteRunResults(testSuiteRunFolderName
 
     if (!bucketBrowserClientUrlPrefix) {
         throw new Error('BUCKET_BROWSER_CLIENT_URL_PREFIX is not set');
-    } else if (!bucketBrowserClientResultFolderName) {
-        throw new Error('BUCKET_BROWSER_CLIENT_RESULT_FOLDER_NAME is not set');
     }
 
     let testResult: PlaywrightJSONReport[] = [];
 
     await Promise.all(testSuiteRunFileNames.map(async (fileName: string) => {
-        const bucketBrowserTestSuiteRunResultFileClientUrl: string = `${bucketBrowserClientUrlPrefix}/${testSuiteRunFolderName}/${bucketBrowserClientResultFolderName}/${fileName}`;
+        const bucketBrowserTestSuiteRunResultFileClientUrl = getBucketBrowserTestSuiteRunResultFileClientUrl(bucketBrowserClientUrlPrefix, testSuiteRunFolderName, fileName, bucketBrowserClientResultFolderName);
 
         const bucketBrowserTestResult: JSONReport = await fetch(bucketBrowserTestSuiteRunResultFileClientUrl, {
             method: 'GET',
@@ -161,4 +175,25 @@ export async function getBucketBrowserTestSuiteRunResults(testSuiteRunFolderName
     }));
 
     return testResult;
+}
+
+/**
+ * Constructs the client URL for a specific test suite run result file in the bucket browser.
+ *
+ * @param {string} bucketBrowserClientUrlPrefix - The prefix of the bucket browser client URL.
+ * @param {string} testSuiteRunFolderName - The name of the test suite run folder.
+ * @param {string} fileName - The name of the result file.
+ * @param {string} [bucketBrowserClientResultFolderName] - The name of the client result folder in the bucket browser (optional).
+ * @returns {string} The constructed client URL.
+ */
+function getBucketBrowserTestSuiteRunResultFileClientUrl(bucketBrowserClientUrlPrefix: string, testSuiteRunFolderName: string, fileName: string, bucketBrowserClientResultFolderName?:string): string {
+    let bucketBrowserTestSuiteRunResultFileClientUrl: string = `${bucketBrowserClientUrlPrefix}/${testSuiteRunFolderName}`;
+
+    if (bucketBrowserClientResultFolderName) {
+        bucketBrowserTestSuiteRunResultFileClientUrl += `/${bucketBrowserClientResultFolderName}`;
+    }
+
+    bucketBrowserTestSuiteRunResultFileClientUrl += `/${fileName}`;
+
+    return bucketBrowserTestSuiteRunResultFileClientUrl;
 }
