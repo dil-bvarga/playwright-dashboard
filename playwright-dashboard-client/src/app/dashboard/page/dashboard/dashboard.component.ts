@@ -316,14 +316,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
       );
     }
 
-    if (testStatusFilter === TestStatus.Flaky) {
+    if (testStatusFilter) {
       results = results
         .map((suiteResult: AggregatedSuiteResult) => ({
           ...suiteResult,
           specs: suiteResult.specs.filter((spec: AggregatedSpecResult) =>
             spec.runs.some((run: AggregatedSpecRun) =>
               run.tests.some(
-                (test: AggregatedTestResult) => test.status === TestStatus.Flaky
+                (test: AggregatedTestResult) => test.status === testStatusFilter
               )
             )
           ),
