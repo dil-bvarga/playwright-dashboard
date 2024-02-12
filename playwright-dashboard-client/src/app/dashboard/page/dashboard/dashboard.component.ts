@@ -8,6 +8,7 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 import {
   debounceTime,
   finalize,
+  map,
   startWith,
   switchMap,
   takeUntil,
@@ -172,7 +173,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.isLoading$.next(true);
         return this._testResultsRepository
           .getAllAggregatedTestResults(this.getFromDate(fromValue))
-          .pipe(finalize(() => this.isLoading$.next(false)));
+          .pipe(
+            map((results: AggregatedSuiteResult[]) =>
+              results.sort((a, b) => a.suiteTitle.localeCompare(b.suiteTitle))
+            ),
+            finalize(() => this.isLoading$.next(false))
+          );
       }),
       tap((results) => {
         results.forEach((suiteResult) => {
