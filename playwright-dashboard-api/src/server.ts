@@ -9,7 +9,7 @@ const port = process.env.PORT || 3000;
 const server = http.createServer(app);
 
 async function startServer(): Promise<void> {
-    await mongoConnect();
+    await mongoConnect(process.env.MONGO_DB_LOCAL_URL);
 
     server.listen(port, () => {
         console.log(`[server]: Server is running on port: ${port}`);

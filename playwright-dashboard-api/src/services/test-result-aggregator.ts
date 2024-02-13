@@ -1,6 +1,6 @@
 import { AggregatedSpecResult, AggregatedSuiteResult, AggregatedTestResult } from '../interfaces/aggregated-suite-result';
-import { PlaywrightJSONReport } from '../interfaces/playwright-json-report';
 import { JSONReportSpec, JSONReportSuite, JSONReportTest, JSONReportTestResult } from '../types/testReporter';
+import { PlaywrightJSONReport } from '../interfaces/playwright-json-report';
 
 /**
  * Aggregates test results from multiple Playwright JSON reports.

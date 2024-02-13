@@ -1,5 +1,5 @@
-import express, { Express } from 'express';
 import cors from 'cors';
+import express, { Express } from 'express';
 import { testResultsRouter } from './routes/test-results.router';
 
 export const app: Express = express();

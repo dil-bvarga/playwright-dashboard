@@ -8,8 +8,8 @@ import mongoose from 'mongoose';
  * 
  * @returns {Promise<void>} A promise that resolves when the connection has been established, or rejects if an error occurs.
  */
-export async function mongoConnect(): Promise<void> {
-    await mongoose.connect(process.env.MONGO_DB_LOCAL_URL);
+export async function mongoConnect(databaseUrl: string): Promise<void> {
+    await mongoose.connect(databaseUrl);
 }
 
 /**

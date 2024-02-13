@@ -1,35 +1,8 @@
 import { Request, Response } from 'express';
 import { AggregatedSuiteResult } from '../interfaces/aggregated-suite-result';
 import { PlaywrightTestResultMongoService } from '../services/playwright-test-result-mongo-service';
-import { PlaywrightJSONReport } from '../interfaces/playwright-json-report';
 
 const playwrightTestResultService = new PlaywrightTestResultMongoService();
-
-/**
- * Retrieves all test results from the database and sends them as a JSON response.
- * 
- * This function first checks if a `from` query parameter is provided in the request.
- * If it is, the function converts it to a Date object and retrieves only the test results that started on or after this date.
- * Otherwise, it retrieves all test results.
- * 
- * The test results are then sent as a JSON response with a status code of 200.
- * 
- * If an error occurs while retrieving the test results, the function logs the error and sends a JSON response with a status code of 500 and a generic error message.
- * 
- * @param {Request} req - The request object.
- * @param {Response} res - The response object.
- * @returns {Promise<void>} A promise that resolves when the response has been sent, or rejects if an error occurs.
- */
-export async function getAllTestResults(req: Request, res: Response): Promise<void> {
-    try {
-        const from = req?.query?.from ? new Date(req.query.from as string) : undefined;
-        const testResults: PlaywrightJSONReport[] = await playwrightTestResultService.getTestResults(from);
-        res.status(200).json(testResults);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Error reading test results' });
-    }
-}
 
 /**
  * Retrieves all aggregated test results from the database and sends them as a JSON response.

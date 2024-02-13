@@ -1,10 +1,10 @@
-import { PlaywrightTestResultReader } from '../interfaces/playwright-test-result-reader';
-import { PlaywrightTestResultWriter } from '../interfaces/playwright-test-result-writer';
-import { PlaywrightJSONReportModel } from '../models/playwright-json-report-model.mongo';
 import { AggregatedSuiteResult } from '../interfaces/aggregated-suite-result';
 import { aggregateTestResults } from './test-result-aggregator';
 import { getBucketBrowserTestRunFolderNames, getBucketBrowserTestRunResultFileNames, getBucketBrowserTestSuiteRunResults } from './playwright-test-result-bucket-browser-service';
 import { PlaywrightJSONReport } from '../interfaces/playwright-json-report';
+import { PlaywrightJSONReportModel } from '../models/playwright-json-report-model.mongo';
+import { PlaywrightTestResultReader } from '../interfaces/playwright-test-result-reader';
+import { PlaywrightTestResultWriter } from '../interfaces/playwright-test-result-writer';
 
 /**
  * PlaywrightTestResultMongoService is responsible for synchronizing test results from a bucket with a MongoDB database and get the data from the database in simple and aggregated format.
