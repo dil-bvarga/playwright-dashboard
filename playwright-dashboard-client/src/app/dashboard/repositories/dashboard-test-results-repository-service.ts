@@ -22,7 +22,7 @@ export class DashboardTestResultsRepository extends TestResultsRepository {
    * @returns {Observable<JSONReport[]>} An Observable that emits the test results.
    */
   public getAllTestResults(): Observable<JSONReport[]> {
-    return this._http.get<JSONReport[]>(`${environment.apiUrl}/test-results`);
+    return this._http.get<JSONReport[]>(`${environment.apiUrl}/api/test-results`);
   }
 
   /**
@@ -38,7 +38,7 @@ export class DashboardTestResultsRepository extends TestResultsRepository {
     params = params.append('from', from.toISOString());
 
     return this._http.get<AggregatedSuiteResult[]>(
-      `${environment.apiUrl}/test-results/aggregated`,
+      `${environment.apiUrl}/api/test-results/aggregated`,
       { params: params }
     );
   }
