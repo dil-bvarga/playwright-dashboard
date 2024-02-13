@@ -3,10 +3,6 @@
   "version": "1.0.0",
   "description": "Playwright Dashboard",
   "main": "index.js",
-  "scripts": {
-    "install-server": "npm install --prefix server",
-    "install-client": "npm install --prefix playwright-dashboard-client"
-  },
   "author": "Balazs Varga",
   "license": "ISC"
 }

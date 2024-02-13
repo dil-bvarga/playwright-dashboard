@@ -1,6 +1,7 @@
 {
   "name": "playwright-dashboard-client",
   "version": "0.0.0",
+  "description": "Playwright Dashboard Client",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
