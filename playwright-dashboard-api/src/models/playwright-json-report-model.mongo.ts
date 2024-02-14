@@ -110,6 +110,7 @@ const JSONReportSchema = new Schema<JSONReport>({
         skipped: Number,
     },
 }, { _id: false });
+JSONReportSchema.index({ 'stats.startTime': -1 });
 
 const PlaywrightJSONReportSchema = new Schema<PlaywrightJSONReport>({
     _id: {
@@ -120,5 +121,6 @@ const PlaywrightJSONReportSchema = new Schema<PlaywrightJSONReport>({
     suiteFolderName: String,
     result: JSONReportSchema,
 });
+PlaywrightJSONReportSchema.index({ 'applicationName': 1 });
 
 export const PlaywrightJSONReportModel = mongoose.model('PlaywrightJSONReport', PlaywrightJSONReportSchema);
