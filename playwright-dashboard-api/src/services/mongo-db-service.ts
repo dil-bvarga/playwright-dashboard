@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
-import { Database } from '../interfaces/database';
+import { DatabaseConnection } from '../interfaces/database-connection';
 
-export class MongoDBService implements Database {
+export class MongoDBService implements DatabaseConnection {
     constructor() {
         /**
         * Sets up event listeners for the Mongoose connection.
@@ -29,7 +29,7 @@ export class MongoDBService implements Database {
      * @param {string} databaseUrl - The URL of the MongoDB database to connect to.
      * @returns {Promise<void>} A promise that resolves when the connection is established.
      */
-    async connect(databaseUrl: string): Promise<void> {
+    public async connect(databaseUrl: string): Promise<void> {
         await mongoose.connect(databaseUrl);
     }
 }

@@ -42,7 +42,8 @@ export async function getBucketBrowserTestRunFolderNames(): Promise<string[]> {
     if (bucketBrowserTestRunFolders) {
         bucketBrowserTestRunFolders?.ListBucketResult?.CommonPrefixes?.forEach((prefix: any) => {
             const urlParts = prefix.Prefix._text.split('/');
-            testRunFolders.push(urlParts[urlParts.length - 2]);
+            const testRunFolderName = urlParts[urlParts.length - 2];
+            testRunFolders.push(testRunFolderName);
         });
     }
 
@@ -71,7 +72,7 @@ export async function getBucketBrowserTestRunResultFileNames(testSuiteRunFolderN
         throw new Error('BUCKET_BROWSER_API_URL_PREFIX is not set');
     }
 
-    let fileNames: string[] = [];
+    let bucketBrowserTestRunResultFileNames: string[] = [];
 
     const bucketBrowserTestSuiteRunResultFolderApiUrl: string = getBucketBrowserTestSuiteRunResultFolderApiUrl(bucketBrowserApiUrlPrefix, testSuiteRunFolderName, bucketBrowserClientResultFolderName);
 
@@ -93,15 +94,16 @@ export async function getBucketBrowserTestRunResultFileNames(testSuiteRunFolderN
         if (Array.isArray(bucketBrowserTestSuiteRunResultFiles?.ListBucketResult?.Contents)) {
             bucketBrowserTestSuiteRunResultFiles?.ListBucketResult?.Contents?.forEach((content: any) => {
                 const contentUrlParts = content.Key._text.split('/');
-                fileNames.push(contentUrlParts[contentUrlParts.length - 1]);
+                const testRunResultFileName = contentUrlParts[contentUrlParts.length - 1];
+                bucketBrowserTestRunResultFileNames.push(testRunResultFileName);
             });
         } else {
             const contentUrlParts = bucketBrowserTestSuiteRunResultFiles?.ListBucketResult?.Contents?.Key._text.split('/');
-            fileNames.push(contentUrlParts[contentUrlParts.length - 1]);
+            bucketBrowserTestRunResultFileNames.push(contentUrlParts[contentUrlParts.length - 1]);
         }
     }
 
-    return fileNames;
+    return bucketBrowserTestRunResultFileNames;
 }
 
 /**
@@ -148,7 +150,7 @@ export async function getBucketBrowserTestSuiteRunResults(testSuiteRunFolderName
         throw new Error('BUCKET_BROWSER_CLIENT_URL_PREFIX is not set');
     }
 
-    let testResult: PlaywrightJSONReport[] = [];
+    let testSuiteRunResults: PlaywrightJSONReport[] = [];
 
     await Promise.all(testSuiteRunFileNames.map(async (fileName: string) => {
         const bucketBrowserTestSuiteRunResultFileClientUrl = getBucketBrowserTestSuiteRunResultFileClientUrl(bucketBrowserClientUrlPrefix, testSuiteRunFolderName, fileName, bucketBrowserClientResultFolderName);
@@ -171,10 +173,10 @@ export async function getBucketBrowserTestSuiteRunResults(testSuiteRunFolderName
             result: bucketBrowserTestResult
         };
 
-        testResult.push(playwrightJSONReport);
+        testSuiteRunResults.push(playwrightJSONReport);
     }));
 
-    return testResult;
+    return testSuiteRunResults;
 }
 
 /**
