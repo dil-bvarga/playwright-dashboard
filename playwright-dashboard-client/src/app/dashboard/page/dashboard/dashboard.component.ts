@@ -292,25 +292,29 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     testResults.forEach((suiteResult: AggregatedSuiteResult) => {
       suiteResult.specs.forEach((spec: AggregatedSpecResult) => {
-        const flaky = spec.runs.some((run: AggregatedSpecRun) =>
-          run.tests.some(
-            (test: AggregatedTestResult) => test.status === TestStatus.Flaky
-          )
+        const hasFlakyTestRun: boolean = spec.runs.some(
+          (run: AggregatedSpecRun) =>
+            run.tests.some(
+              (test: AggregatedTestResult) => test.status === TestStatus.Flaky
+            )
         );
-        const allPassed = spec.runs.every((run: AggregatedSpecRun) =>
-          run.tests.some(
-            (test: AggregatedTestResult) => test.status === TestStatus.Expected
-          )
+        const isAllTestRunPassed: boolean = spec.runs.every(
+          (run: AggregatedSpecRun) =>
+            run.tests.some(
+              (test: AggregatedTestResult) =>
+                test.status === TestStatus.Expected
+            )
         );
-        const allFailed = spec.runs.every((run: AggregatedSpecRun) =>
-          run.tests.some(
-            (test: AggregatedTestResult) =>
-              test.status === TestStatus.Unexpected
-          )
+        const isAllTestFailed: boolean = spec.runs.every(
+          (run: AggregatedSpecRun) =>
+            run.tests.some(
+              (test: AggregatedTestResult) =>
+                test.status === TestStatus.Unexpected
+            )
         );
-        if (flaky) flakyCount++;
-        if (allPassed) allPassedCount++;
-        if (allFailed) allFailedCount++;
+        if (hasFlakyTestRun) flakyCount++;
+        if (isAllTestRunPassed) allPassedCount++;
+        if (isAllTestFailed) allFailedCount++;
       });
     });
 
