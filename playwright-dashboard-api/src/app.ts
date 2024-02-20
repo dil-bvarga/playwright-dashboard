@@ -8,3 +8,6 @@ app.use(cors());
 app.use(express.json());
 
 app.use('/api/test-results', testResultsRouter);
+app.use('/api/ping', (req, res,)=>{
+    res.status(200).send('pong');
+});

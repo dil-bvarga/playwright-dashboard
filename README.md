@@ -1,3 +1,8 @@
+export VERSION=latest &&
+aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 582827603354.dkr.ecr.us-west-2.amazonaws.com &&
+docker build -t 582827603354.dkr.ecr.us-west-2.amazonaws.com/playwrightdashboardrepository:$VERSION . &&
+docker push 582827603354.dkr.ecr.us-west-2.amazonaws.com/playwrightdashboardrepository:$VERSION
+
 # playwright-dashboard
 
 The Playwright Dashboard retrieves test results from the AWS S3 Bucket Browser application, aggregates these results, and provides a simple UI for analyzing individual test run results. Its primary purpose is to easily identify flaky or failed test cases.
@@ -35,6 +40,7 @@ Here are the necessary environment variables:
 - `DATABASE_URL`: The MongoDB database connection string, including username, password, and hostname. For example: `mongodb://localhost:27017/playwright-dashboard?retryWrites=true&w=majority`.
 - `BUCKET_BROWSER_API_URL_PREFIX`: The base URL for the AWS S3 bucket browser service API, used to fetch test results. For example: `https://boards-qa-results.diligentdatasystems.com/?list-type=2&delimiter=/&prefix=results/bw-client`.
 - `BUCKET_BROWSER_CLIENT_URL_PREFIX`: The base URL for the AWS S3 bucket browser client, used to redirect users to full test run reports. For example: `https://boards-qa-results.diligentdatasystems.com/results/bw-client`.
+- `BUCKET_BROWSER_CLIENT_RESULT_FOLDER_NAME = 'metrics'`
 
 
 #### Playwright Dashboard Client
