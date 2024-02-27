@@ -30,6 +30,8 @@ export const DEFAULT_FILTER_OPTION = '';
 export const DEFAULT_TEST_STATUS_FILTER_OPTION = TestStatus.Flaky;
 export const DEBOUNCE_TIME_IN_MS = 500;
 export const MAX_RUNS_FOR_MINIMIZED_VIEW = 40;
+export const DATE_FORMAT = 'yyyy, MMM dd. - H:mm';
+export const TOOLTIP_HIDE_DELAY_IN_MS = 100;
 
 /**
  * `DashboardComponent` is an Angular component that manages the dashboard view.
@@ -66,6 +68,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
   protected readonly Interval = Interval;
   /** The maximum number of runs for a test to be considered for minimized view. */
   protected readonly maxRunsForMinimizedView = MAX_RUNS_FOR_MINIMIZED_VIEW;
+  /** Date format of the test runs. */
+  protected readonly testRunDateFormat = DATE_FORMAT;
+  /** Hide delay of the mat tooltip in milliseconds. */
+  protected readonly tooltipHideDelay = TOOLTIP_HIDE_DELAY_IN_MS;
   /** A getter that returns a sorted array of unique application names. */
   protected get applications(): string[] {
     return Array.from(this._applications).sort();

@@ -157,10 +157,10 @@
               }"
               #tooltip="matTooltip"
               [matTooltip]="
-                testRun.suiteRunStartTime | date : 'yyyy, MMM dd. - H:mm'
+                testRun.suiteRunStartTime | date : testRunDateFormat
               "
-              [matTooltipPosition]="'above'"
-              matTooltipHideDelay="100"
+              matTooltipPosition="above"
+              [matTooltipHideDelay]="tooltipHideDelay"
               (click)="openTestRunDetailsFile(testRun)"
             ></div>
           </div>
