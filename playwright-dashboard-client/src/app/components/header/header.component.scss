@@ -1,19 +1,26 @@
+@use "../../../styles";
+
+$header-background-color: #282e37;
+$header-title-color: #ffffff;
+$header-letter-spacing: 2px;
+$header-z-index: 100;
+
 :host {
   .header {
-    background: #282e37;
-    height: 60px;
+    background: $header-background-color;
+    height: styles.$header-height;
     width: 100%;
     position: fixed;
     top: 0;
-    z-index: 100;
+    z-index: $header-z-index;
     display: flex;
 
     .title {
       display: flex;
       align-items: center;
-      margin: 0px 36px;
-      color: #ffffff;
-      letter-spacing: 2px;
+      margin: 0 styles.$s9;
+      color: $header-title-color;
+      letter-spacing: $header-letter-spacing;
     }
   }
 }

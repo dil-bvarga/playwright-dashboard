@@ -1,11 +1,15 @@
+@use "../styles";
+
+$dashboard-max-width: 1750px;
+
 :host {
   .main {
-    padding-top: 60px;
+    padding-top: styles.$header-height;
     height: 100%;
   }
 
   ::ng-deep app-dashboard {
-    max-width: 1750px;
+    max-width: $dashboard-max-width;
     margin-left: auto;
     margin-right: auto;
   }
